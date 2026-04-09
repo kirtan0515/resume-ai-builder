@@ -1,28 +1,52 @@
+"use client";
+
 export default function ResultCard({ result }) {
-  if (!result) return null;
+  if (!result?.analysis) return null;
+
+  const { tailored_summary, improved_bullets, missing_skills, match_score } = result.analysis;
+
+  const scoreClass =
+    match_score >= 75 ? "score-green" : match_score >= 50 ? "score-yellow" : "score-red";
 
   return (
     <div className="result-card">
-      <h2>Tailored Summary</h2>
-      <p>{result.tailored_summary}</p>
+      <h2>Analysis Results</h2>
 
-      <h2>Improved Bullet Points</h2>
-      <ul>
-        {result.improved_bullets?.map((bullet, index) => (
-          <li key={index}>{bullet}</li>
-        ))}
-      </ul>
+      <div className="score-row">
+        <span className="score-label">Match Score</span>
+        <span className={`score-value ${scoreClass}`}>{match_score}%</span>
+      </div>
 
-      <h2>Missing Skills</h2>
-      <ul>
-        {result.missing_skills?.map((skill, index) => (
-          <li key={index}>{skill}</li>
-        ))}
-      </ul>
+      {tailored_summary && (
+        <div className="result-section">
+          <h3>Tailored Summary</h3>
+          <p>{tailored_summary}</p>
+        </div>
+      )}
 
-      <h2>Match Score</h2>
-      <p style={{ fontSize: "28px", fontWeight: "bold" }}>
-        {result.match_score}%</p>
+      {improved_bullets?.length > 0 && (
+        <div className="result-section">
+          <h3>Improved Bullet Points</h3>
+          <ul>
+            {improved_bullets.map((bullet, i) => (
+              <li key={i}>{bullet}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {missing_skills?.length > 0 && (
+        <div className="result-section">
+          <h3>Missing Skills / Keywords</h3>
+          <div className="skill-tags">
+            {missing_skills.map((skill, i) => (
+              <span key={i} className="skill-tag">
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
