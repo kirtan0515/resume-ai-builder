@@ -31,6 +31,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Validate FastAPI app imports
+        env:
+          OPENAI_API_KEY: "sk-dummy-key-for-ci"
         run: python -c "from app.main import app; print('Backend import check passed')"
 
   frontend:
@@ -48,7 +50,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
