@@ -113,12 +113,8 @@ export default function ResumeForm() {
         </div>
       </form>
 
-      {result && (
-        <>
-          <ResultCard result={result} />
-          <ResumeBuilder aiResult={result.analysis} resumeData={result.resume_data} />
-        </>
-      )}
+      <ResultCard result={result} />
+      {result && <ResumeBuilder aiResult={result} resumeData={null} />}
     </>
   );
 }

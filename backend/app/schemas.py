@@ -7,50 +7,23 @@ class ResumeRequest(BaseModel):
     job_description: str
 
 
-class ResumeResponse(BaseModel):
+class AnalysisResult(BaseModel):
+    detected_domain: str
+    overall_match_score: int
+    ats_keyword_score: int
+    domain_relevance_score: int
+    experience_alignment_score: int
+    impact_score: int
+    strengths: List[str]
+    weaknesses: List[str]
+    brutal_feedback: List[str]
     tailored_summary: str
+    missing_keywords_must_have: List[str]
+    missing_keywords_nice_to_have: List[str]
+    recruiter_concerns: List[str]
+    top_fixes: List[str]
     improved_bullets: List[str]
-    missing_skills: List[str]
-    match_score: int
 
 
-class ContactInfo(BaseModel):
-    email: str = ""
-    phone: str = ""
-    location: str = ""
-    linkedin: str = ""
-    github: str = ""
-
-
-class ExperienceItem(BaseModel):
-    title: str
-    company: str
-    dates: str
-    bullets: List[str] = []
-
-
-class ProjectItem(BaseModel):
-    title: str
-    tech: str = ""
-    bullets: List[str] = []
-
-
-class EducationItem(BaseModel):
-    school: str
-    degree: str
-    dates: str
-
-
-class ResumeData(BaseModel):
-    name: str
-    contact: ContactInfo
-    summary: str = ""
-    skills: List[str] = []
-    experience: List[ExperienceItem] = []
-    projects: List[ProjectItem] = []
-    education: List[EducationItem] = []
-
-
-class AnalyzeResponse(BaseModel):
-    analysis: ResumeResponse
-    resume_data: ResumeData
+class ReportRequest(BaseModel):
+    analysis: AnalysisResult
