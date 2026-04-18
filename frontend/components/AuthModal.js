@@ -44,8 +44,8 @@ export default function AuthModal({ onClose }) {
               },
             },
           }}
-          providers={[]}
-          redirectTo={typeof window !== "undefined" ? window.location.origin : ""}
+          providers={["google"]}
+          redirectTo={process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "https://www.resumeaihub.com")}
         />
         <button className="modal-dismiss" onClick={onClose}>Cancel</button>
       </div>
