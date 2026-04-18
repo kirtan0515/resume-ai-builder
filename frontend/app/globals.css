@@ -1808,3 +1808,144 @@ textarea::placeholder, input::placeholder {
   .faq-grid { grid-template-columns: 1fr; }
   .lp-proof-bar { gap: 16px; }
 }
+
+/* ── Billing Panel ────────────────────────────────────── */
+.billing-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.billing-panel-upgrade {
+  border-color: rgba(99,102,241,0.4);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(99,102,241,0.05) 100%);
+}
+
+.billing-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.billing-panel-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.billing-panel-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.billing-panel-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.status-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.status-badge.active {
+  background: rgba(34,197,94,0.1);
+  color: var(--green);
+  border: 1px solid rgba(34,197,94,0.25);
+}
+
+.status-badge.canceling {
+  background: rgba(245,158,11,0.1);
+  color: var(--yellow);
+  border: 1px solid rgba(245,158,11,0.25);
+}
+
+/* ── Billing pages ────────────────────────────────────── */
+.billing-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: 40px 24px;
+}
+
+.billing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 48px 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.billing-icon {
+  font-size: 52px;
+  margin-bottom: 20px;
+}
+
+.billing-card h1 {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.billing-card p {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.billing-features {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 24px 0 32px;
+  text-align: left;
+}
+
+.billing-feature {
+  font-size: 14px;
+  color: var(--green);
+  font-weight: 500;
+}
+
+/* ── Pricing notice ───────────────────────────────────── */
+.pricing-notice {
+  margin-top: 40px;
+  padding: 16px 20px;
+  background: var(--bg-item);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: left;
+}
+
+.pricing-notice strong {
+  color: var(--text-label);
+}

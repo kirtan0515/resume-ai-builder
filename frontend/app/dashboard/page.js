@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import ResumeForm from "../../components/ResumeForm";
 import AuthModal from "../../components/AuthModal";
 import Navbar from "../../components/Navbar";
+import BillingPanel from "../../components/BillingPanel";
 
 export default function Dashboard() {
   const [session, setSession] = useState(null);
@@ -59,7 +60,10 @@ export default function Dashboard() {
             <span className="spinner" style={{ width: "24px", height: "24px", borderWidth: "3px" }} />
           </div>
         ) : session ? (
-          <ResumeForm session={session} userMeta={userMeta} />
+          <>
+            <BillingPanel session={session} userMeta={userMeta} />
+            <ResumeForm session={session} userMeta={userMeta} />
+          </>
         ) : (
           <div className="card signin-prompt">
             <div className="signin-prompt-icon">🔐</div>

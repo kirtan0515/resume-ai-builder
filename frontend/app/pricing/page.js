@@ -1,11 +1,35 @@
-import Navbar from "../../components/Navbar";
+"use client";
 
-export const metadata = {
-  title: "Pricing — ResumeAI Hub",
-  description: "Simple, transparent pricing. Start free, upgrade when ready.",
-};
+import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
+import Navbar from "../../components/Navbar";
+import API_URL from "../../lib/api";
 
 export default function PricingPage() {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  async function handleUpgrade() {
+    if (!session) { window.location.href = "/dashboard"; return; }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/create-checkout-session`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else alert("Could not start checkout.");
+    } catch { alert("Could not connect to backend."); }
+    finally { setLoading(false); }
+  }
+
   return (
     <>
       <Navbar />
@@ -18,7 +42,6 @@ export default function PricingPage() {
           </p>
 
           <div className="lp-pricing-row">
-            {/* Free */}
             <div className="lp-plan">
               <div className="lp-plan-name">Free</div>
               <div className="lp-plan-price">$0</div>
@@ -34,12 +57,11 @@ export default function PricingPage() {
               <a href="/dashboard" className="btn-outline lp-plan-btn">Get Started Free</a>
             </div>
 
-            {/* Pro */}
             <div className="lp-plan lp-plan-pro">
               <div className="lp-plan-badge">Most Popular</div>
               <div className="lp-plan-name">Pro</div>
               <div className="lp-plan-price">$9<span>/mo</span></div>
-              <div className="lp-plan-period">billed monthly</div>
+              <div className="lp-plan-period">billed monthly · cancel anytime</div>
               <ul className="lp-plan-features">
                 <li>✓ Unlimited analyses</li>
                 <li>✓ Everything in Free</li>
@@ -49,10 +71,21 @@ export default function PricingPage() {
                 <li>✓ Priority processing</li>
                 <li>✓ Early access to new features</li>
               </ul>
-              <button className="btn-primary lp-plan-btn" disabled style={{ opacity: 0.7, cursor: "default" }}>
-                Coming Soon
+              <button
+                className="btn-primary lp-plan-btn"
+                onClick={handleUpgrade}
+                disabled={loading}
+              >
+                {loading ? <><span className="spinner" /> Loading...</> : "Upgrade to Pro →"}
               </button>
             </div>
+          </div>
+
+          {/* Refund policy */}
+          <div className="pricing-notice">
+            <strong>Refund Policy:</strong> Due to the digital and AI-powered nature of this service,
+            all purchases are final. We do not offer refunds after usage. Try the free tier before upgrading.
+            You may cancel anytime — access continues until the end of your billing period.
           </div>
 
           {/* FAQ */}
@@ -62,7 +95,7 @@ export default function PricingPage() {
               {[
                 { q: "What counts as one analysis?", a: "Each time you click Analyze Resume, that uses one analysis. Uploading a PDF or editing text does not count." },
                 { q: "Do free analyses expire?", a: "No. Your 2 free analyses are lifetime — they don't reset daily or monthly." },
-                { q: "When will Pro launch?", a: "Pro is coming soon. Sign up now to be notified when it's available." },
+                { q: "Can I cancel anytime?", a: "Yes. Cancel anytime from your dashboard. You'll keep Pro access until the end of your billing period." },
                 { q: "What data do you store?", a: "We store your email and usage count. Resume text is processed in real time and not stored. See our Privacy Policy." },
               ].map((item, i) => (
                 <div key={i} className="faq-item">
