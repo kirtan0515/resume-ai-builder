@@ -15,25 +15,35 @@ function ScoreBar({ label, value }) {
   );
 }
 
-function TagList({ items, variant = "neutral" }) {
-  if (!items?.length) return <span className="tag-empty">None identified</span>;
+function Section({ title, accent, icon, children }) {
   return (
-    <div className="tag-list">
-      {items.map((item, i) => (
-        <span key={i} className={`tag tag-${variant}`}>{item}</span>
-      ))}
+    <div className="card">
+      <div className={`card-title ${accent || ""}`}>{icon && <span className="section-icon">{icon}</span>}{title}</div>
+      {children}
     </div>
   );
 }
 
-function ListItems({ items, icon = "→" }) {
-  if (!items?.length) return null;
+function BulletList({ items, icon, iconColor }) {
+  if (!items?.length) return <p className="empty-state">None identified.</p>;
   return (
     <ul className="dash-list">
       {items.map((item, i) => (
-        <li key={i}><span className="dash-icon">{icon}</span>{item}</li>
+        <li key={i}>
+          <span className="dash-icon" style={iconColor ? { color: iconColor } : {}}>{icon || "→"}</span>
+          {item}
+        </li>
       ))}
     </ul>
+  );
+}
+
+function TagList({ items, variant }) {
+  if (!items?.length) return <p className="empty-state">None identified.</p>;
+  return (
+    <div className="tag-list">
+      {items.map((item, i) => <span key={i} className={`tag tag-${variant}`}>{item}</span>)}
+    </div>
   );
 }
 
@@ -41,9 +51,15 @@ export default function ResultCard({ result }) {
   if (!result) return null;
 
   const r = result;
-  const mainScore = r.overall_match_score;
-  const scoreColor = mainScore >= 75 ? "var(--green)" : mainScore >= 50 ? "var(--yellow)" : "var(--red)";
-  const scoreLabel = mainScore >= 75 ? "Strong Match" : mainScore >= 50 ? "Moderate Match" : "Needs Work";
+  const score = r.overall_match_score;
+  const scoreColor = score >= 75 ? "var(--green)" : score >= 50 ? "var(--yellow)" : "var(--red)";
+  const scoreLabel = score >= 75 ? "Strong Match" : score >= 50 ? "Moderate Match" : "Needs Work";
+
+  const rejectionRisk = score < 50
+    ? "Your resume will likely be filtered out before reaching a recruiter."
+    : score < 75
+    ? "Your resume may pass ATS but could struggle with human review."
+    : null;
 
   async function handleDownloadReport() {
     try {
@@ -62,18 +78,16 @@ export default function ResultCard({ result }) {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-    } catch {
-      alert("Could not connect to backend.");
-    }
+    } catch { alert("Could not connect to backend."); }
   }
 
   return (
     <div className="dashboard">
 
-      {/* Header row */}
+      {/* Header */}
       <div className="dashboard-header">
         <div>
-          <div className="domain-badge">{r.detected_domain}</div>
+          <div className="domain-badge">🎯 {r.detected_domain}</div>
           <h2 className="dashboard-title">Analysis Results</h2>
         </div>
         <button className="btn-report" onClick={handleDownloadReport}>
@@ -81,11 +95,19 @@ export default function ResultCard({ result }) {
         </button>
       </div>
 
+      {/* Rejection risk banner */}
+      {rejectionRisk && (
+        <div className="rejection-banner">
+          <span className="rejection-icon">⚠</span>
+          {rejectionRisk}
+        </div>
+      )}
+
       {/* Score overview */}
       <div className="card score-overview">
         <div className="main-score-block">
           <div className="main-score-circle" style={{ borderColor: scoreColor }}>
-            <span className="main-score-number" style={{ color: scoreColor }}>{mainScore}</span>
+            <span className="main-score-number" style={{ color: scoreColor }}>{score}</span>
             <span className="main-score-pct">/ 100</span>
           </div>
           <div>
@@ -101,69 +123,78 @@ export default function ResultCard({ result }) {
         </div>
       </div>
 
-      {/* Two col: strengths + weaknesses */}
-      <div className="two-col-cards">
-        <div className="card">
-          <div className="card-title green-accent">Strengths</div>
-          <ListItems items={r.strengths} icon="✓" />
+      {/* TOP FIXES — hero card */}
+      <div className="card card-priority">
+        <div className="card-title accent-accent">
+          <span className="section-icon">🔧</span>
+          Top Fixes — Do These First
         </div>
-        <div className="card">
-          <div className="card-title red-accent">Weaknesses</div>
-          <ListItems items={r.weaknesses} icon="✗" />
-        </div>
-      </div>
-
-      {/* Brutal feedback */}
-      <div className="card">
-        <div className="card-title orange-accent">Honest Feedback</div>
-        <ListItems items={r.brutal_feedback} icon="→" />
-      </div>
-
-      {/* Tailored summary */}
-      {r.tailored_summary && (
-        <div className="card">
-          <div className="card-title">Tailored Summary</div>
-          <p className="result-text">{r.tailored_summary}</p>
-        </div>
-      )}
-
-      {/* Keywords */}
-      <div className="two-col-cards">
-        <div className="card">
-          <div className="card-title red-accent">Must-Have Keywords Missing</div>
-          <TagList items={r.missing_keywords_must_have} variant="danger" />
-        </div>
-        <div className="card">
-          <div className="card-title yellow-accent">Nice-to-Have Keywords Missing</div>
-          <TagList items={r.missing_keywords_nice_to_have} variant="warning" />
-        </div>
-      </div>
-
-      {/* Recruiter concerns */}
-      {r.recruiter_concerns?.length > 0 && (
-        <div className="card">
-          <div className="card-title yellow-accent">Recruiter Concerns</div>
-          <ListItems items={r.recruiter_concerns} icon="⚠" />
-        </div>
-      )}
-
-      {/* Top fixes */}
-      <div className="card">
-        <div className="card-title accent-accent">Top Fixes — Do These First</div>
         <ol className="fixes-list">
           {r.top_fixes?.map((fix, i) => (
-            <li key={i}><span className="fix-number">{i + 1}</span>{fix}</li>
+            <li key={i}>
+              <span className="fix-number">{i + 1}</span>
+              {fix}
+            </li>
           ))}
         </ol>
       </div>
 
+      {/* Strengths + Weaknesses */}
+      <div className="two-col-cards">
+        <Section title="Strengths" accent="green-accent" icon="✅">
+          <BulletList items={r.strengths} icon="✓" iconColor="var(--green)" />
+        </Section>
+        <Section title="Weaknesses" accent="red-accent" icon="❌">
+          <BulletList items={r.weaknesses} icon="✗" iconColor="var(--red)" />
+        </Section>
+      </div>
+
+      {/* Honest feedback */}
+      <Section title="Honest Feedback" accent="orange-accent" icon="💬">
+        <BulletList items={r.brutal_feedback} icon="→" />
+      </Section>
+
+      {/* Tailored summary */}
+      {r.tailored_summary && (
+        <Section title="Tailored Summary" icon="📝">
+          <p className="result-text">{r.tailored_summary}</p>
+        </Section>
+      )}
+
+      {/* Keywords */}
+      <div className="two-col-cards">
+        <Section title="Must-Have Keywords Missing" accent="red-accent" icon="🚨">
+          <TagList items={r.missing_keywords_must_have} variant="danger" />
+        </Section>
+        <Section title="Nice-to-Have Keywords" accent="yellow-accent" icon="💡">
+          <TagList items={r.missing_keywords_nice_to_have} variant="warning" />
+        </Section>
+      </div>
+
+      {/* Recruiter concerns */}
+      {r.recruiter_concerns?.length > 0 && (
+        <Section title="Recruiter Concerns" accent="yellow-accent" icon="👀">
+          <BulletList items={r.recruiter_concerns} icon="⚠" iconColor="var(--yellow)" />
+        </Section>
+      )}
+
       {/* Improved bullets */}
       {r.improved_bullets?.length > 0 && (
-        <div className="card">
-          <div className="card-title">Improved Bullet Examples</div>
-          <ListItems items={r.improved_bullets} icon="•" />
-        </div>
+        <Section title="Improved Bullet Examples" icon="✍️">
+          <BulletList items={r.improved_bullets} icon="•" />
+        </Section>
       )}
+
+      {/* Bottom download */}
+      <div className="report-cta">
+        <div>
+          <div className="report-cta-title">Save Your Full Report</div>
+          <div className="report-cta-sub">Includes all scores, fixes, keywords, and improved bullets.</div>
+        </div>
+        <button className="btn-primary" onClick={handleDownloadReport}>
+          ⬇ Download Improvement Report
+        </button>
+      </div>
 
     </div>
   );

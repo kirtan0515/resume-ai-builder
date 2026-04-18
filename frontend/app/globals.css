@@ -907,3 +907,76 @@ textarea::placeholder, input::placeholder {
   .main-score-number { font-size: 22px; }
   .dashboard-header { flex-direction: column; }
 }
+
+/* ── Priority Card ────────────────────────────────────── */
+.card-priority {
+  border-color: rgba(99,102,241,0.4);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(99,102,241,0.05) 100%);
+  box-shadow: 0 4px 24px rgba(99,102,241,0.15);
+}
+
+/* ── Rejection Banner ─────────────────────────────────── */
+.rejection-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #f87171;
+  font-weight: 500;
+}
+
+.rejection-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ── Section Icon ─────────────────────────────────────── */
+.section-icon {
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+/* ── Analyze button full width ────────────────────────── */
+.btn-analyze {
+  width: 100%;
+  justify-content: center;
+  padding: 15px;
+  font-size: 16px;
+  border-radius: var(--radius);
+}
+
+/* ── Report CTA ───────────────────────────────────────── */
+.report-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  flex-wrap: wrap;
+}
+
+.report-cta-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.report-cta-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Empty state ──────────────────────────────────────── */
+.empty-state {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
