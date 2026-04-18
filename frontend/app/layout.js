@@ -1,8 +1,9 @@
 import "./globals.css";
+import Footer from "../components/Footer";
 
 export const metadata = {
-  title: "ResumeAI Hub — AI-Powered Resume Optimizer",
-  description: "Analyze your resume against any job description with AI-powered feedback.",
+  title: "ResumeAI Hub — AI Resume Analyzer",
+  description: "Get ATS scores, keyword gaps, recruiter feedback, and exactly what to fix. Free to try.",
 };
 
 export default function RootLayout({ children }) {
@@ -10,9 +11,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         {children}
-        <footer className="footer">
-          © {new Date().getFullYear()} ResumeAI Hub · resumeaihub.com
-        </footer>
+        <Footer />
       </body>
     </html>
   );

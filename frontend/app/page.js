@@ -1,127 +1,123 @@
-"use client";
+import Navbar from "../components/Navbar";
 
-import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabase";
-import ResumeForm from "../components/ResumeForm";
-import AuthModal from "../components/AuthModal";
-
-export default function Home() {
-  const [session, setSession] = useState(null);
-  const [userMeta, setUserMeta] = useState(null);
-  const [showAuth, setShowAuth] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Handle OAuth redirect — Supabase sets session from URL hash
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) fetchUserMeta(session.access_token);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) {
-        fetchUserMeta(session.access_token);
-        setShowAuth(false);
-        setLoading(false);
-      } else {
-        setUserMeta(null);
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  async function fetchUserMeta(token) {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
-      const res = await fetch(`${API_URL}/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) setUserMeta(await res.json());
-    } catch {}
-  }
-
-  async function handleSignOut() {
-    await supabase.auth.signOut();
-    setUserMeta(null);
-  }
-
-  const isAdmin = userMeta?.role === "admin";
-
+export default function LandingPage() {
   return (
     <>
-      {/* Navbar */}
-      <nav className="navbar">
-        <a className="navbar-brand" href="/">
-          <span className="navbar-brand-dot" />
-          ResumeAI Hub
-        </a>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {isAdmin && <span className="admin-badge">⚡ Admin</span>}
-          {session ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span className="navbar-email">{session.user.email}</span>
-              <button className="btn-signout" onClick={handleSignOut}>Sign Out</button>
-            </div>
-          ) : (
-            <button className="btn-signin" onClick={() => setShowAuth(true)}>Sign In</button>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero */}
-      <div className="hero">
-        <div className="hero-badge">✦ AI Resume Intelligence</div>
-        <h1>Land More Interviews with AI</h1>
-        <p>
-          Upload your resume, paste a job description, and get instant
-          domain-aware analysis — scores, honest feedback, and exactly what to fix.
-        </p>
-        <div className="hero-stats">
-          <div className="hero-stat">
-            <span className="hero-stat-value">5</span>
-            <span className="hero-stat-label">Score Dimensions</span>
+      <section className="lp-hero">
+        <div className="lp-hero-inner">
+          <div className="hero-badge">✦ AI-Powered · ATS-Optimized · Free to Try</div>
+          <h1 className="lp-h1">AI Resume Analyzer That Gets You Shortlisted</h1>
+          <p className="lp-sub">
+            Upload your resume, paste a job description, and get instant ATS scoring,
+            keyword gap detection, recruiter-level feedback, and exactly what to fix —
+            in under 60 seconds.
+          </p>
+          <div className="lp-cta-row">
+            <a href="/dashboard" className="btn-primary lp-cta-main">Try Free Analysis →</a>
+            <a href="/pricing" className="btn-outline">See Pricing</a>
           </div>
-          <div className="hero-stat">
-            <span className="hero-stat-value">RAG</span>
-            <span className="hero-stat-label">Powered</span>
-          </div>
-          <div className="hero-stat">
-            <span className="hero-stat-value">GPT-4o</span>
-            <span className="hero-stat-label">Model</span>
-          </div>
-          <div className="hero-stat">
-            <span className="hero-stat-value">ATS</span>
-            <span className="hero-stat-label">Optimized</span>
-          </div>
+          <p className="lp-cta-note">No credit card required · 2 free analyses</p>
         </div>
+      </section>
+
+      {/* Social proof bar */}
+      <div className="lp-proof-bar">
+        <span>🎓 Used by students and job seekers</span>
+        <span>⚡ Powered by GPT-4o + RAG</span>
+        <span>🎯 ATS-optimized feedback</span>
+        <span>📊 5 score dimensions</span>
       </div>
 
-      <main className="main-content">
-        {loading ? (
-          <div className="card" style={{ textAlign: "center", padding: "48px" }}>
-            <span className="spinner" style={{ width: "24px", height: "24px", borderWidth: "3px" }} />
+      {/* Features */}
+      <section className="lp-section">
+        <div className="lp-section-inner">
+          <div className="lp-section-label">Features</div>
+          <h2 className="lp-h2">Everything you need to get past the ATS</h2>
+          <div className="lp-features-grid">
+            {[
+              { icon: "📊", title: "ATS Match Score", desc: "See exactly how well your resume matches the job description across 5 dimensions." },
+              { icon: "🔍", title: "Keyword Gap Detection", desc: "Find must-have and nice-to-have keywords you're missing before a recruiter sees your resume." },
+              { icon: "💬", title: "Recruiter Feedback", desc: "Get honest, direct feedback written like a senior recruiter — not a chatbot." },
+              { icon: "🔧", title: "Top Fix Suggestions", desc: "Prioritized list of exactly what to change, in order of impact." },
+              { icon: "📈", title: "Version Comparison", desc: "Re-analyze after edits and see your score improve in real time." },
+              { icon: "🎯", title: "Domain-Aware AI", desc: "Adapts evaluation for tech, healthcare, business, marketing, and more." },
+            ].map((f, i) => (
+              <div key={i} className="lp-feature-card">
+                <div className="lp-feature-icon">{f.icon}</div>
+                <div className="lp-feature-title">{f.title}</div>
+                <div className="lp-feature-desc">{f.desc}</div>
+              </div>
+            ))}
           </div>
-        ) : session ? (
-          <ResumeForm session={session} userMeta={userMeta} />
-        ) : (
-          <div className="card signin-prompt">
-            <div className="signin-prompt-icon">🔐</div>
-            <h3 className="signin-prompt-title">Sign in to Analyze Your Resume</h3>
-            <p className="signin-prompt-body">
-              Create a free account to get started. Your first 2 analyses are free.
-            </p>
-            <button className="btn-primary" style={{ margin: "0 auto" }} onClick={() => setShowAuth(true)}>
-              Get Started — It's Free
-            </button>
-          </div>
-        )}
-      </main>
+        </div>
+      </section>
 
-      {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+      {/* How it works */}
+      <section className="lp-section lp-section-alt">
+        <div className="lp-section-inner">
+          <div className="lp-section-label">How It Works</div>
+          <h2 className="lp-h2">Three steps to a stronger resume</h2>
+          <div className="lp-steps">
+            {[
+              { n: "1", title: "Upload Your Resume", desc: "Drop a PDF or paste your resume text. We extract and analyze the content automatically." },
+              { n: "2", title: "Paste the Job Description", desc: "Add the job posting you're targeting. Our AI compares your resume against it in detail." },
+              { n: "3", title: "Get AI-Powered Feedback", desc: "Receive scores, keyword gaps, recruiter concerns, top fixes, and improved bullet examples." },
+            ].map((s, i) => (
+              <div key={i} className="lp-step">
+                <div className="lp-step-number">{s.n}</div>
+                <div className="lp-step-title">{s.title}</div>
+                <div className="lp-step-desc">{s.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing preview */}
+      <section className="lp-section">
+        <div className="lp-section-inner">
+          <div className="lp-section-label">Pricing</div>
+          <h2 className="lp-h2">Simple, transparent pricing</h2>
+          <div className="lp-pricing-row">
+            <div className="lp-plan">
+              <div className="lp-plan-name">Free</div>
+              <div className="lp-plan-price">$0</div>
+              <ul className="lp-plan-features">
+                <li>✓ 2 lifetime analyses</li>
+                <li>✓ Full analysis dashboard</li>
+                <li>✓ ATS score + keyword gaps</li>
+                <li>✓ Top fix suggestions</li>
+              </ul>
+              <a href="/dashboard" className="btn-outline lp-plan-btn">Get Started Free</a>
+            </div>
+            <div className="lp-plan lp-plan-pro">
+              <div className="lp-plan-badge">Most Popular</div>
+              <div className="lp-plan-name">Pro</div>
+              <div className="lp-plan-price">$9<span>/mo</span></div>
+              <ul className="lp-plan-features">
+                <li>✓ Unlimited analyses</li>
+                <li>✓ Download improvement report</li>
+                <li>✓ Version comparison</li>
+                <li>✓ Advanced AI feedback</li>
+                <li>✓ Priority processing</li>
+              </ul>
+              <a href="/pricing" className="btn-primary lp-plan-btn">Upgrade to Pro</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="lp-final-cta">
+        <h2 className="lp-h2">Ready to improve your resume?</h2>
+        <p className="lp-sub" style={{ marginBottom: "32px" }}>
+          Start free. No credit card. Get your first analysis in under a minute.
+        </p>
+        <a href="/dashboard" className="btn-primary lp-cta-main">Start Free Analysis →</a>
+      </section>
     </>
   );
 }
