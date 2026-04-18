@@ -47,10 +47,13 @@ async def upload_resume(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/analyze", response_model=AnalysisResult)
+@app.post("/analyze")
 def analyze_resume(data: ResumeRequest):
     try:
         result = generate_resume_feedback(data.resume_text, data.job_description)
+        # Handle both old nested format and new flat format
+        if "analysis" in result and "detected_domain" not in result:
+            result = result["analysis"]
         return result
     except Exception as e:
         print("ANALYZE ERROR:", str(e))
