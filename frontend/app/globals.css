@@ -1226,3 +1226,86 @@ textarea::placeholder, input::placeholder {
   color: var(--text);
   background: transparent;
 }
+
+/* ── Auth ─────────────────────────────────────────────── */
+.auth-modal {
+  max-width: 480px;
+  padding: 32px;
+}
+
+.signin-prompt {
+  text-align: center;
+  padding: 56px 32px;
+}
+
+.signin-prompt-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.signin-prompt-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.signin-prompt-body {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Navbar auth ──────────────────────────────────────── */
+.navbar-email {
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-signin {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-signin:hover { background: var(--accent-hover); }
+
+.btn-signout {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-signout:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: transparent;
+}
+
+.admin-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(251,191,36,0.1);
+  border: 1px solid rgba(251,191,36,0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+}

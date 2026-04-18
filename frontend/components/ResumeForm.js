@@ -30,7 +30,7 @@ function incrementUsage() {
   return count;
 }
 
-export default function ResumeForm() {
+export default function ResumeForm({ session, userMeta }) {
   const [resumeText, setResumeText] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState(null);
@@ -97,10 +97,15 @@ export default function ResumeForm() {
     try {
       const res = await fetch(`${API_URL}/analyze`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({ resume_text: resumeText, job_description: jobDescription }),
       });
       const data = await res.json();
+      if (res.status === 402) { setShowLimitModal(true); return; }
+      if (res.status === 401) { alert("Session expired. Please sign in again."); return; }
       if (!res.ok) { alert(data.detail || "Something went wrong."); return; }
       const newCount = incrementUsage();
       setUsageCount(newCount);
