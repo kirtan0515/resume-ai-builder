@@ -12,20 +12,30 @@ from app.services.resume_formatter import format_resume_data
 
 app = FastAPI(title="Resume AI Builder API")
 
+# ✅ CORS FIX (IMPORTANT)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "https://resume-ai-builder-three.vercel.app",
+        "https://resumeaihub.com",
+        "https://www.resumeaihub.com",
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
+# ✅ Health check
 @app.get("/")
 def root():
     return {"message": "Resume AI Builder backend is running"}
 
 
+# ✅ Upload Resume
 @app.post("/upload-resume")
 async def upload_resume(file: UploadFile = File(...)):
     try:
@@ -53,16 +63,21 @@ async def upload_resume(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ✅ Analyze Resume
 @app.post("/analyze", response_model=AnalyzeResponse)
 def analyze_resume(data: ResumeRequest):
     try:
-        result = generate_resume_feedback(data.resume_text, data.job_description)
+        result = generate_resume_feedback(
+            data.resume_text,
+            data.job_description
+        )
         return result
     except Exception as e:
         print("BACKEND ERROR:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ✅ Download PDF
 @app.post("/download-pdf")
 def download_pdf(data: ResumeData):
     try:
@@ -76,6 +91,7 @@ def download_pdf(data: ResumeData):
                 "Content-Disposition": "attachment; filename=optimized_resume.pdf"
             }
         )
+
     except Exception as e:
         print("PDF ERROR:", str(e))
         raise HTTPException(status_code=500, detail=str(e))

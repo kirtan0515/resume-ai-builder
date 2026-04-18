@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import API_URL from "../lib/api";
 
 const emptyExperience = () => ({ title: "", company: "", dates: "", bullets: [""] });
 const emptyProject = () => ({ title: "", tech: "", bullets: [""] });
@@ -96,7 +97,7 @@ export default function ResumeBuilder({ aiResult, resumeData }) {
 
     setDownloading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8001/download-pdf", {
+      const res = await fetch(`${API_URL}/download-pdf`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -121,9 +122,11 @@ export default function ResumeBuilder({ aiResult, resumeData }) {
   }
 
   return (
-    <div className="builder-card">
-      <h2>Build Your Resume</h2>
-      <p>Your AI suggestions are pre-filled. Edit anything, then download your PDF.</p>
+    <div className="card">
+      <div className="card-title">Step 4 — Build & Download Your Resume</div>
+      <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
+        AI suggestions are pre-filled. Edit anything, then download your polished PDF.
+      </p>
 
       {/* Personal Info */}
       <div className="builder-section">
@@ -159,7 +162,7 @@ export default function ResumeBuilder({ aiResult, resumeData }) {
           <textarea rows={4} value={summary} onChange={(e) => setSummary(e.target.value)} placeholder="Professional summary..." />
         </Field>
         {aiResult?.tailored_summary && summary !== aiResult.tailored_summary && (
-          <button className="btn-ghost" type="button" onClick={() => setSummary(aiResult.tailored_summary)}>
+          <button className="btn-secondary" type="button" onClick={() => setSummary(aiResult.tailored_summary)}>
             ↩ Use AI suggestion
           </button>
         )}
@@ -175,7 +178,7 @@ export default function ResumeBuilder({ aiResult, resumeData }) {
           <div className="missing-skills-row">
             <span>Add missing skills from AI:</span>
             {aiResult.missing_skills.map((s, i) => (
-              <button key={i} className="btn-ghost" type="button"
+              <button key={i} className="btn-secondary" type="button"
                 onClick={() => setSkills((prev) => {
                   const current = prev.split(",").map((x) => x.trim()).filter(Boolean);
                   return current.includes(s) ? prev : prev ? `${prev}, ${s}` : s;
@@ -208,24 +211,24 @@ export default function ResumeBuilder({ aiResult, resumeData }) {
               {exp.bullets.map((b, bi) => (
                 <div key={bi} className="bullet-row">
                   <input value={b} onChange={(e) => updateBullet(setExperience, i, bi, e.target.value)} placeholder="Describe an achievement..." />
-                  <button className="btn-remove" type="button" onClick={() => removeBullet(setExperience, i, bi)}>✕</button>
+                  <button className="btn-danger" type="button" onClick={() => removeBullet(setExperience, i, bi)}>✕</button>
                 </div>
               ))}
             </Field>
-            <button className="btn-ghost" type="button" onClick={() => addBullet(setExperience, i)}>+ Add bullet</button>
+            <button className="btn-secondary" type="button" onClick={() => addBullet(setExperience, i)}>+ Add bullet</button>
             {i === 0 && aiResult?.improved_bullets?.length > 0 && (
-              <button className="btn-ghost" type="button" onClick={() => updateListItem(setExperience, 0, "bullets", aiResult.improved_bullets)} style={{ marginLeft: "8px" }}>
+              <button className="btn-secondary" type="button" onClick={() => updateListItem(setExperience, 0, "bullets", aiResult.improved_bullets)} style={{ marginLeft: "8px" }}>
                 ↩ Use AI bullets
               </button>
             )}
             {experience.length > 1 && (
-              <button className="btn-remove" type="button" onClick={() => setExperience((prev) => prev.filter((_, idx) => idx !== i))} style={{ marginLeft: "8px" }}>
+              <button className="btn-danger" type="button" onClick={() => setExperience((prev) => prev.filter((_, idx) => idx !== i))} style={{ marginLeft: "8px" }}>
                 Remove
               </button>
             )}
           </div>
         ))}
-        <button className="btn-ghost" type="button" onClick={() => setExperience((prev) => [...prev, emptyExperience()])}>
+        <button className="btn-secondary" type="button" onClick={() => setExperience((prev) => [...prev, emptyExperience()])}>
           + Add Experience
         </button>
       </div>
@@ -247,19 +250,19 @@ export default function ResumeBuilder({ aiResult, resumeData }) {
               {proj.bullets.map((b, bi) => (
                 <div key={bi} className="bullet-row">
                   <input value={b} onChange={(e) => updateBullet(setProjects, i, bi, e.target.value)} placeholder="Describe the project..." />
-                  <button className="btn-remove" type="button" onClick={() => removeBullet(setProjects, i, bi)}>✕</button>
+                  <button className="btn-danger" type="button" onClick={() => removeBullet(setProjects, i, bi)}>✕</button>
                 </div>
               ))}
             </Field>
-            <button className="btn-ghost" type="button" onClick={() => addBullet(setProjects, i)}>+ Add bullet</button>
+            <button className="btn-secondary" type="button" onClick={() => addBullet(setProjects, i)}>+ Add bullet</button>
             {projects.length > 1 && (
-              <button className="btn-remove" type="button" onClick={() => setProjects((prev) => prev.filter((_, idx) => idx !== i))} style={{ marginLeft: "8px" }}>
+              <button className="btn-danger" type="button" onClick={() => setProjects((prev) => prev.filter((_, idx) => idx !== i))} style={{ marginLeft: "8px" }}>
                 Remove
               </button>
             )}
           </div>
         ))}
-        <button className="btn-ghost" type="button" onClick={() => setProjects((prev) => [...prev, emptyProject()])}>
+        <button className="btn-secondary" type="button" onClick={() => setProjects((prev) => [...prev, emptyProject()])}>
           + Add Project
         </button>
       </div>
@@ -281,11 +284,11 @@ export default function ResumeBuilder({ aiResult, resumeData }) {
               <input value={edu.dates} onChange={(e) => updateListItem(setEducation, i, "dates", e.target.value)} placeholder="2020 – 2024" />
             </Field>
             {education.length > 1 && (
-              <button className="btn-remove" type="button" onClick={() => setEducation((prev) => prev.filter((_, idx) => idx !== i))}>Remove</button>
+              <button className="btn-danger" type="button" onClick={() => setEducation((prev) => prev.filter((_, idx) => idx !== i))}>Remove</button>
             )}
           </div>
         ))}
-        <button className="btn-ghost" type="button" onClick={() => setEducation((prev) => [...prev, emptyEducation()])}>
+        <button className="btn-secondary" type="button" onClick={() => setEducation((prev) => [...prev, emptyEducation()])}>
           + Add Education
         </button>
       </div>
