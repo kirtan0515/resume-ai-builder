@@ -9,23 +9,37 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 rag_service = RAGService()
 
-SYSTEM_PROMPT = """You are an expert recruiter, resume strategist, and ATS evaluator.
+SYSTEM_PROMPT = """You are a senior technical recruiter and resume strategist with 15 years of experience.
 
-Your job:
-- Detect the domain from the job description
-- Evaluate the resume honestly against the job
-- Provide specific, actionable feedback
-- Return ONLY valid JSON
+Your job is to evaluate resumes with brutal honesty — like a real recruiter deciding in 30 seconds.
 
-Adapt evaluation based on industry:
-- Tech → stack, projects, systems, APIs, cloud, measurable impact
-- Healthcare → certifications, licenses, clinical experience, patient care, compliance
-- Business/Finance → metrics, ownership, results, ROI, leadership
-- Marketing/Sales → campaigns, growth, conversions, pipeline, revenue
-- Education → outcomes, curriculum, teaching methods, student results
+DOMAIN-SPECIFIC EVALUATION RULES:
 
-Do NOT be generic. Do NOT be overly polite. Be specific and useful.
-Think like a senior recruiter giving real feedback."""
+Software Engineering / Tech:
+- Check: technical depth, specific tech stack match, project quality, system design exposure, cloud/DevOps, measurable impact
+- Red flags: vague descriptions, no metrics, missing required stack, no projects, generic bullets
+
+Healthcare / Nursing / Medical:
+- Check: certifications (RN, BLS, ACLS, etc.), clinical hours, patient care experience, compliance knowledge, EMR systems
+- Red flags: missing licensure, no clinical specifics, vague patient care descriptions
+
+Business / Finance / Consulting:
+- Check: KPIs, revenue impact, team leadership, stakeholder management, P&L ownership, specific metrics
+- Red flags: no numbers, vague responsibilities, no ownership language
+
+Marketing / Sales:
+- Check: campaign results, revenue generated, conversion rates, tools (HubSpot, Salesforce), growth metrics
+- Red flags: no metrics, vague "managed campaigns", no tools mentioned
+
+Education:
+- Check: student outcomes, curriculum development, teaching methods, grade levels, certifications
+- Red flags: no outcomes, vague teaching descriptions
+
+TONE RULES:
+- Be direct and honest. Say "This resume will likely be rejected because..." not "You may want to consider..."
+- Reference specific content from the resume
+- Explain WHY something is weak, not just that it is
+- Never be generic. Every piece of feedback must be specific to this resume and this job."""
 
 
 def generate_resume_feedback(resume_text: str, job_description: str) -> dict:
@@ -36,7 +50,7 @@ def generate_resume_feedback(resume_text: str, job_description: str) -> dict:
     )
     retrieved_context = "\n\n".join(relevant_chunks) if relevant_chunks else ""
 
-    prompt = f"""Analyze the following resume against the job description.
+    prompt = f"""Analyze this resume against the job description. Be a real recruiter — honest, direct, specific.
 
 Retrieved Resume Context (most relevant sections):
 {retrieved_context}
@@ -47,59 +61,67 @@ Full Resume:
 Job Description:
 {job_description}
 
-Return ONLY this JSON structure, no markdown:
+Return ONLY this exact JSON structure, no markdown, no extra text:
 {{
-  "detected_domain": "e.g. Software Engineering / Healthcare / Finance / Marketing",
+  "detected_domain": "Specific domain e.g. Software Engineering / Registered Nursing / Financial Analysis",
   "overall_match_score": 0,
   "ats_keyword_score": 0,
   "domain_relevance_score": 0,
   "experience_alignment_score": 0,
   "impact_score": 0,
+  "screening_verdict": "Likely Shortlisted | Borderline | Likely Rejected",
+  "verdict_reasons": [
+    "Specific reason 1 why this verdict was given",
+    "Specific reason 2",
+    "Specific reason 3"
+  ],
   "strengths": [
-    "Specific strength 1",
+    "Specific strength referencing actual resume content",
     "Specific strength 2",
     "Specific strength 3"
   ],
   "weaknesses": [
-    "Specific weakness 1",
+    "Specific weakness — explain WHY it's weak for this role",
     "Specific weakness 2",
     "Specific weakness 3"
   ],
   "brutal_feedback": [
-    "Direct honest observation 1",
-    "Direct honest observation 2",
-    "Direct honest observation 3"
+    "Direct statement: This resume will/won't work because...",
+    "Direct statement 2",
+    "Direct statement 3"
   ],
-  "tailored_summary": "2-4 sentence professional summary tailored to this specific job",
-  "missing_keywords_must_have": ["keyword1", "keyword2"],
+  "tailored_summary": "2-4 sentence professional summary written for this specific job",
+  "missing_keywords_must_have": ["keyword1", "keyword2", "keyword3"],
   "missing_keywords_nice_to_have": ["keyword1", "keyword2"],
   "recruiter_concerns": [
-    "Concern a recruiter would flag 1",
-    "Concern a recruiter would flag 2"
+    "Specific concern a recruiter would flag",
+    "Specific concern 2"
   ],
   "top_fixes": [
-    "Specific actionable fix 1",
-    "Specific actionable fix 2",
-    "Specific actionable fix 3",
-    "Specific actionable fix 4",
-    "Specific actionable fix 5"
+    "Priority 1: Specific actionable fix with clear instruction",
+    "Priority 2: Specific actionable fix",
+    "Priority 3: Specific actionable fix",
+    "Priority 4: Specific actionable fix",
+    "Priority 5: Specific actionable fix"
   ],
   "improved_bullets": [
-    "Rewritten achievement bullet 1",
-    "Rewritten achievement bullet 2",
-    "Rewritten achievement bullet 3",
-    "Rewritten achievement bullet 4"
+    "Strong rewritten bullet with metric: [Action] [what] [result/impact]",
+    "Strong rewritten bullet 2",
+    "Strong rewritten bullet 3",
+    "Strong rewritten bullet 4"
   ]
 }}
 
-Rules:
+Scoring rules:
+- overall_match_score >= 85 → screening_verdict = "Likely Shortlisted"
+- overall_match_score 70-84 → screening_verdict = "Borderline"
+- overall_match_score < 70 → screening_verdict = "Likely Rejected"
 - All scores: integers 0-100
 - strengths, weaknesses, brutal_feedback: 3-6 items each
-- top_fixes: 5-8 items
-- improved_bullets: 4-8 items
-- Be specific — reference actual content from the resume and JD
-- Explain WHY something is weak, not just that it is
-- Adapt all feedback to the detected domain"""
+- top_fixes: 5-8 items, ordered by priority
+- improved_bullets: 4-8 items, must include metrics
+- verdict_reasons: exactly 2-3 sharp, specific reasons
+- Be specific — reference actual content from the resume and JD"""
 
     response = client.chat.completions.create(
         model="gpt-4o-mini",
