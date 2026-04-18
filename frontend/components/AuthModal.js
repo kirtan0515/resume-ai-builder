@@ -44,7 +44,7 @@ export default function AuthModal({ onClose }) {
               },
             },
           }}
-          providers={["google"]}
+          providers={[]}
           redirectTo={typeof window !== "undefined" ? window.location.origin : ""}
         />
         <button className="modal-dismiss" onClick={onClose}>Cancel</button>

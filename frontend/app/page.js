@@ -12,6 +12,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Handle OAuth redirect — Supabase sets session from URL hash
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) fetchUserMeta(session.access_token);
@@ -23,8 +24,10 @@ export default function Home() {
       if (session) {
         fetchUserMeta(session.access_token);
         setShowAuth(false);
+        setLoading(false);
       } else {
         setUserMeta(null);
+        setLoading(false);
       }
     });
 
