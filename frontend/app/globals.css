@@ -1949,3 +1949,87 @@ textarea::placeholder, input::placeholder {
 .pricing-notice strong {
   color: var(--text-label);
 }
+
+/* ── Pro gating ───────────────────────────────────────── */
+.card-locked {
+  position: relative;
+  overflow: hidden;
+}
+
+.locked-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  text-align: center;
+  gap: 10px;
+}
+
+.locked-icon { font-size: 28px; }
+
+.locked-text {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.locked-btn {
+  margin-top: 4px;
+  font-size: 13px;
+  padding: 10px 20px;
+}
+
+.pro-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.btn-report-locked {
+  opacity: 0.6;
+}
+
+/* ── Report CTA upgrade ───────────────────────────────── */
+.report-cta-upgrade {
+  border-color: rgba(99,102,241,0.4);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(99,102,241,0.05) 100%);
+}
+
+.report-cta-terms {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* ── Modal features list ──────────────────────────────── */
+.modal-features {
+  list-style: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.modal-features li {
+  font-size: 14px;
+  color: var(--green);
+  font-weight: 500;
+}
+
+.modal-terms {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}

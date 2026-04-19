@@ -11,9 +11,11 @@ export default function Footer() {
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
           <a href="/disclaimer">Disclaimer</a>
+          <a href="mailto:support@resumeaihub.com">Support</a>
         </div>
         <div className="footer-copy">
-          © {new Date().getFullYear()} ResumeAI Hub · AI results are for guidance only.
+          © {new Date().getFullYear()} ResumeAI Hub · AI results are for guidance only ·{" "}
+          <a href="mailto:support@resumeaihub.com" style={{ color: "inherit" }}>support@resumeaihub.com</a>
         </div>
       </div>
     </footer>

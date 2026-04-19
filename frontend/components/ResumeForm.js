@@ -182,7 +182,7 @@ export default function ResumeForm({ session, userMeta }) {
       {/* Results */}
       {result && (
         <div id="results">
-          <ResultCard result={result} prevResult={prevResult} />
+          <ResultCard result={result} prevResult={prevResult} session={session} userMeta={userMeta} />
         </div>
       )}
 
@@ -190,15 +190,24 @@ export default function ResumeForm({ session, userMeta }) {
       {showLimitModal && (
         <div className="modal-overlay" onClick={() => setShowLimitModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-icon">🚀</div>
-            <h3 className="modal-title">Daily Limit Reached</h3>
+            <div className="modal-icon">🔒</div>
+            <h3 className="modal-title">Free Limit Reached</h3>
             <p className="modal-body">
-              You've used your {FREE_LIMIT} free analyses for today.
-              Upgrade to Pro for unlimited resume analysis, priority processing, and advanced insights.
+              You've used your <strong>2 free lifetime analyses</strong>.
+            </p>
+            <ul className="modal-features">
+              <li>✓ Unlimited analyses with Pro</li>
+              <li>✓ Download improvement report</li>
+              <li>✓ Version comparison</li>
+              <li>✓ Recruiter concerns + improved bullets</li>
+              <li>✓ Cancel anytime — access until period ends</li>
+            </ul>
+            <p className="modal-terms">
+              $9/mo · No refunds after usage · Billing may appear as RESUMEAIHUB
             </p>
             <button className="btn-primary" style={{ width: "100%", justifyContent: "center" }}
-              onClick={() => setShowLimitModal(false)}>
-              Upgrade to Pro — Coming Soon
+              onClick={() => { setShowLimitModal(false); window.location.href = "/pricing"; }}>
+              Upgrade to Pro — $9/mo →
             </button>
             <button className="modal-dismiss" onClick={() => setShowLimitModal(false)}>
               Maybe later

@@ -22,7 +22,22 @@ function ScoreBar({ label, value, prevValue }) {
   );
 }
 
-function Section({ title, accent, icon, children }) {
+function Section({ title, accent, icon, children, locked, onUpgrade }) {
+  if (locked) {
+    return (
+      <div className="card card-locked">
+        <div className={`card-title ${accent || ""}`}>
+          {icon && <span className="section-icon">{icon}</span>}{title}
+          <span className="pro-badge">Pro</span>
+        </div>
+        <div className="locked-overlay">
+          <div className="locked-icon">🔒</div>
+          <div className="locked-text">Available on Pro plan</div>
+          <button className="btn-primary locked-btn" onClick={onUpgrade}>Upgrade to Pro — $9/mo</button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="card">
       <div className={`card-title ${accent || ""}`}>
@@ -64,7 +79,6 @@ function ScreeningVerdict({ verdict, reasons }) {
   const bg = isGood ? "rgba(34,197,94,0.08)" : isMid ? "rgba(245,158,11,0.08)" : "rgba(239,68,68,0.08)";
   const border = isGood ? "rgba(34,197,94,0.25)" : isMid ? "rgba(245,158,11,0.25)" : "rgba(239,68,68,0.25)";
   const icon = isGood ? "✅" : isMid ? "⚠️" : "❌";
-
   return (
     <div className="verdict-card" style={{ background: bg, borderColor: border }}>
       <div className="verdict-header">
@@ -83,12 +97,26 @@ function ScreeningVerdict({ verdict, reasons }) {
   );
 }
 
-function VersionComparison({ result, prevResult }) {
+function VersionComparison({ result, prevResult, isPro, onUpgrade }) {
   if (!prevResult) return null;
+  if (!isPro) {
+    return (
+      <div className="card card-locked">
+        <div className="card-title accent-accent">
+          <span className="section-icon">📊</span>Version Comparison
+          <span className="pro-badge">Pro</span>
+        </div>
+        <div className="locked-overlay">
+          <div className="locked-icon">🔒</div>
+          <div className="locked-text">Track score improvements across versions with Pro</div>
+          <button className="btn-primary locked-btn" onClick={onUpgrade}>Upgrade to Pro — $9/mo</button>
+        </div>
+      </div>
+    );
+  }
   const diff = result.overall_match_score - prevResult.overall_match_score;
   const color = diff > 0 ? "var(--green)" : diff < 0 ? "var(--red)" : "var(--text-muted)";
   const arrow = diff > 0 ? "↑" : diff < 0 ? "↓" : "→";
-
   return (
     <div className="version-compare">
       <div className="version-compare-title">📊 Version Comparison</div>
@@ -109,20 +137,30 @@ function VersionComparison({ result, prevResult }) {
   );
 }
 
-export default function ResultCard({ result, prevResult }) {
+export default function ResultCard({ result, prevResult, session, userMeta }) {
   const [copied, setCopied] = useState(false);
   if (!result) return null;
 
   const r = result;
+  const role = r._role || userMeta?.role || "free";
+  const isPro = role === "paid" || role === "admin";
   const score = r.overall_match_score;
   const scoreColor = score >= 75 ? "var(--green)" : score >= 50 ? "var(--yellow)" : "var(--red)";
   const scoreLabel = score >= 75 ? "Strong Match" : score >= 50 ? "Moderate Match" : "Needs Work";
 
+  function handleUpgrade() {
+    window.location.href = "/pricing";
+  }
+
   async function handleDownloadReport() {
+    if (!isPro) { handleUpgrade(); return; }
     try {
       const res = await fetch(`${API_URL}/download-report`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({ analysis: result }),
       });
       if (!res.ok) { alert("Failed to generate report."); return; }
@@ -139,7 +177,7 @@ export default function ResultCard({ result, prevResult }) {
   }
 
   function handleShare() {
-    const text = `My resume scored ${score}/100 on ResumeAI Hub — ${r.screening_verdict || "analyzed"} for ${r.detected_domain || "my target role"}. Check it out at resumeaihub.com`;
+    const text = `My resume scored ${score}/100 on ResumeAI Hub — ${r.screening_verdict || "analyzed"} for ${r.detected_domain || "my target role"}. Try it free at resumeaihub.com`;
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -159,14 +197,20 @@ export default function ResultCard({ result, prevResult }) {
           <button className="btn-share" onClick={handleShare}>
             {copied ? "✓ Copied!" : "Share Score"}
           </button>
-          <button className="btn-report" onClick={handleDownloadReport}>
-            ⬇ Download Report
+          <button
+            className={isPro ? "btn-report" : "btn-report btn-report-locked"}
+            onClick={handleDownloadReport}
+            title={isPro ? "Download report" : "Pro feature — upgrade to download"}
+          >
+            {isPro ? "⬇ Download Report" : "🔒 Download Report"}
           </button>
         </div>
       </div>
 
       {/* Version comparison */}
-      {prevResult && <VersionComparison result={result} prevResult={prevResult} />}
+      {prevResult && (
+        <VersionComparison result={result} prevResult={prevResult} isPro={isPro} onUpgrade={handleUpgrade} />
+      )}
 
       {/* Screening verdict */}
       <ScreeningVerdict verdict={r.screening_verdict} reasons={r.verdict_reasons} />
@@ -191,11 +235,10 @@ export default function ResultCard({ result, prevResult }) {
         </div>
       </div>
 
-      {/* TOP FIXES — hero card */}
+      {/* TOP FIXES — always visible */}
       <div className="card card-priority">
         <div className="card-title accent-accent">
-          <span className="section-icon">🔧</span>
-          Top Fixes — Do These First
+          <span className="section-icon">🔧</span>Top Fixes — Do These First
         </div>
         <ol className="fixes-list">
           {r.top_fixes?.length
@@ -207,7 +250,7 @@ export default function ResultCard({ result, prevResult }) {
         </ol>
       </div>
 
-      {/* Strengths + Weaknesses */}
+      {/* Strengths + Weaknesses — always visible */}
       <div className="two-col-cards">
         <Section title="Strengths" accent="green-accent" icon="✅">
           <BulletList items={r.strengths} icon="✓" iconColor="var(--green)"
@@ -219,20 +262,18 @@ export default function ResultCard({ result, prevResult }) {
         </Section>
       </div>
 
-      {/* Honest feedback */}
+      {/* Honest feedback — always visible */}
       <Section title="Honest Feedback" accent="orange-accent" icon="💬">
         <BulletList items={r.brutal_feedback} icon="→"
           fallback="Your resume is reasonably well-positioned for this role." />
       </Section>
 
-      {/* Tailored summary */}
-      {r.tailored_summary && (
-        <Section title="Tailored Summary" icon="📝">
-          <p className="result-text">{r.tailored_summary}</p>
-        </Section>
-      )}
+      {/* Tailored summary — Pro only */}
+      <Section title="Tailored Summary" icon="📝" locked={!isPro} onUpgrade={handleUpgrade}>
+        {isPro && r.tailored_summary && <p className="result-text">{r.tailored_summary}</p>}
+      </Section>
 
-      {/* Keywords */}
+      {/* Keywords — always visible */}
       <div className="two-col-cards">
         <Section title="Must-Have Keywords Missing" accent="red-accent" icon="🚨">
           <TagList items={r.missing_keywords_must_have} variant="danger"
@@ -244,29 +285,48 @@ export default function ResultCard({ result, prevResult }) {
         </Section>
       </div>
 
-      {/* Recruiter concerns */}
-      <Section title="Recruiter Concerns" accent="yellow-accent" icon="👀">
-        <BulletList items={r.recruiter_concerns} icon="⚠" iconColor="var(--yellow)"
-          fallback="No significant recruiter concerns identified." />
+      {/* Recruiter concerns — Pro only */}
+      <Section title="Recruiter Concerns" accent="yellow-accent" icon="👀" locked={!isPro} onUpgrade={handleUpgrade}>
+        {isPro && (
+          <BulletList items={r.recruiter_concerns} icon="⚠" iconColor="var(--yellow)"
+            fallback="No significant recruiter concerns identified." />
+        )}
       </Section>
 
-      {/* Improved bullets */}
-      {r.improved_bullets?.length > 0 && (
-        <Section title="Improved Bullet Examples" icon="✍️">
+      {/* Improved bullets — Pro only */}
+      <Section title="Improved Bullet Examples" icon="✍️" locked={!isPro} onUpgrade={handleUpgrade}>
+        {isPro && r.improved_bullets?.length > 0 && (
           <BulletList items={r.improved_bullets} icon="•" />
-        </Section>
-      )}
+        )}
+      </Section>
 
       {/* Bottom CTA */}
-      <div className="report-cta">
-        <div>
-          <div className="report-cta-title">Save Your Full Report</div>
-          <div className="report-cta-sub">All scores, verdict, fixes, keywords, and improved bullets.</div>
+      {isPro ? (
+        <div className="report-cta">
+          <div>
+            <div className="report-cta-title">Save Your Full Report</div>
+            <div className="report-cta-sub">All scores, verdict, fixes, keywords, and improved bullets.</div>
+          </div>
+          <button className="btn-primary" onClick={handleDownloadReport}>
+            ⬇ Download Improvement Report
+          </button>
         </div>
-        <button className="btn-primary" onClick={handleDownloadReport}>
-          ⬇ Download Improvement Report
-        </button>
-      </div>
+      ) : (
+        <div className="report-cta report-cta-upgrade">
+          <div>
+            <div className="report-cta-title">Unlock Full Analysis with Pro</div>
+            <div className="report-cta-sub">
+              Tailored summary · Recruiter concerns · Improved bullets · Download report · Version comparison
+            </div>
+            <div className="report-cta-terms">
+              $9/mo · Cancel anytime · Access continues until billing period ends
+            </div>
+          </div>
+          <button className="btn-primary" onClick={handleUpgrade}>
+            Upgrade to Pro →
+          </button>
+        </div>
+      )}
 
     </div>
   );
