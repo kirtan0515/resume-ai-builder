@@ -89,12 +89,12 @@ async def download_report(request: Request, data: ReportRequest):
     verify_token(request)
     try:
         a = data.analysis
-        verdict = a.get("screening_verdict", "N/A")
-        verdict_reasons = a.get("verdict_reasons", [])
+        verdict = a.get("verdict", a.get("screening_verdict", "N/A"))
 
         lines = [
             "=" * 60, "RESUME IMPROVEMENT REPORT", "ResumeAI Hub — resumeaihub.com", "=" * 60, "",
             f"DOMAIN:   {a.get('detected_domain', 'N/A')}",
+            f"LEVEL:    {a.get('candidate_level', 'N/A')}",
             f"VERDICT:  {verdict}", "",
             "SCORES", "-" * 40,
             f"Overall Match:          {a.get('overall_match_score', 0)}/100",
@@ -102,31 +102,85 @@ async def download_report(request: Request, data: ReportRequest):
             f"Domain Relevance:       {a.get('domain_relevance_score', 0)}/100",
             f"Experience Alignment:   {a.get('experience_alignment_score', 0)}/100",
             f"Impact Score:           {a.get('impact_score', 0)}/100",
+            f"Qualification Coverage: {a.get('qualification_coverage_score', 0)}/100",
         ]
-        if verdict_reasons:
-            lines += ["", "VERDICT REASONS", "-" * 40]
-            for r in verdict_reasons:
-                lines.append(f"  → {r}")
+
+        if a.get("verdict_explanation"):
+            lines += ["", "VERDICT EXPLANATION", "-" * 40, a.get("verdict_explanation")]
+
+        if a.get("internship_note") and a.get("internship_note") != "null":
+            lines += ["", f"NOTE: {a.get('internship_note')}"]
+
+        qa = a.get("qualification_analysis", {})
+        if qa:
+            lines += ["", "QUALIFICATION ANALYSIS", "-" * 40]
+            if qa.get("required_met"):
+                lines.append(f"  Required (met):      {', '.join(qa['required_met'])}")
+            if qa.get("required_missing"):
+                lines.append(f"  Required (missing):  {', '.join(qa['required_missing'])}")
+            if qa.get("preferred_met"):
+                lines.append(f"  Preferred (met):     {', '.join(qa['preferred_met'])}")
+            if qa.get("preferred_missing"):
+                lines.append(f"  Preferred (missing): {', '.join(qa['preferred_missing'])}")
+            if qa.get("bonus_present"):
+                lines.append(f"  Bonus present:       {', '.join(qa['bonus_present'])}")
+
         lines += ["", "TAILORED SUMMARY", "-" * 40, a.get("tailored_summary", ""), ""]
+
         lines += ["STRENGTHS", "-" * 40]
-        for s in a.get("strengths", []): lines.append(f"  ✓ {s}")
+        for s in a.get("strengths", []):
+            if isinstance(s, dict):
+                lines.append(f"  ✓ {s.get('point', '')}")
+                if s.get("evidence"):
+                    lines.append(f"    Evidence: {s['evidence']}")
+            else:
+                lines.append(f"  ✓ {s}")
+
         lines += ["", "WEAKNESSES", "-" * 40]
-        for w in a.get("weaknesses", []): lines.append(f"  ✗ {w}")
-        lines += ["", "HONEST FEEDBACK", "-" * 40]
-        for f in a.get("brutal_feedback", []): lines.append(f"  → {f}")
-        lines += ["", "MUST-HAVE KEYWORDS MISSING", "-" * 40]
-        must = a.get("missing_keywords_must_have", [])
-        lines.append("  " + ", ".join(must) if must else "  None identified")
-        lines += ["", "NICE-TO-HAVE KEYWORDS MISSING", "-" * 40]
-        nice = a.get("missing_keywords_nice_to_have", [])
-        lines.append("  " + ", ".join(nice) if nice else "  None identified")
-        lines += ["", "RECRUITER CONCERNS", "-" * 40]
-        for c in a.get("recruiter_concerns", []): lines.append(f"  ⚠ {c}")
-        lines += ["", "TOP FIXES — DO THESE FIRST", "-" * 40]
-        for i, fix in enumerate(a.get("top_fixes", []), 1): lines.append(f"  {i}. {fix}")
+        for w in a.get("weaknesses", []):
+            if isinstance(w, dict):
+                lines.append(f"  ✗ {w.get('point', '')}")
+                if w.get("evidence"):
+                    lines.append(f"    Evidence: {w['evidence']}")
+                if w.get("suggestion"):
+                    lines.append(f"    Suggestion: {w['suggestion']}")
+            else:
+                lines.append(f"  ✗ {w}")
+
+        lines += ["", "COACH FEEDBACK", "-" * 40]
+        for f in a.get("coach_feedback", a.get("brutal_feedback", [])):
+            lines.append(f"  → {f}")
+
+        lines += ["", "REQUIRED KEYWORDS MISSING", "-" * 40]
+        req = a.get("missing_keywords_required", a.get("missing_keywords_must_have", []))
+        lines.append("  " + ", ".join(req) if req else "  None identified")
+
+        lines += ["", "PREFERRED KEYWORDS MISSING", "-" * 40]
+        pref = a.get("missing_keywords_preferred", a.get("missing_keywords_nice_to_have", []))
+        lines.append("  " + ", ".join(pref) if pref else "  None identified")
+
+        lines += ["", "TOP FIXES", "-" * 40]
+        for item in a.get("top_fixes", []):
+            if isinstance(item, dict):
+                lines.append(f"  {item.get('priority', '')}. {item.get('fix', '')}")
+                if item.get("why"):
+                    lines.append(f"     Why: {item['why']}")
+                if item.get("how"):
+                    lines.append(f"     How: {item['how']}")
+            else:
+                lines.append(f"  • {item}")
+
         lines += ["", "IMPROVED BULLET EXAMPLES", "-" * 40]
-        for b in a.get("improved_bullets", []): lines.append(f"  • {b}")
-        lines += ["", "=" * 60, "ResumeAI Hub — resumeaihub.com", "=" * 60]
+        for b in a.get("improved_bullets", []):
+            if isinstance(b, dict):
+                if b.get("original"):
+                    lines.append(f"  Before: {b['original']}")
+                lines.append(f"  After:  {b.get('improved', '')}")
+                lines.append("")
+            else:
+                lines.append(f"  • {b}")
+
+        lines += ["=" * 60, "ResumeAI Hub — resumeaihub.com", "=" * 60]
 
         return StreamingResponse(
             iter(["\n".join(lines)]),
