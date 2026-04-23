@@ -87,7 +87,7 @@ export default function ResumeForm({ session, userMeta }) {
     if (!jobDescription?.trim()) { alert("Please add a job description."); return; }
 
     const count = getUsageCount();
-    if (count >= FREE_LIMIT) { setShowLimitModal(true); return; }
+    if (!isPrivileged && count >= FREE_LIMIT) { setShowLimitModal(true); return; }
 
     setLoading(true);
     if (result) setPrevResult(result);
@@ -116,11 +116,12 @@ export default function ResumeForm({ session, userMeta }) {
   };
 
   const remaining = FREE_LIMIT - usageCount;
+  const isPrivileged = userMeta?.role === "admin" || userMeta?.role === "paid";
 
   return (
     <>
-      {/* Usage indicator */}
-      {usageCount > 0 && (
+      {/* Usage indicator — only for free users */}
+      {usageCount > 0 && !isPrivileged && (
         <div className="usage-bar">
           <span className="usage-text">
             {remaining > 0
