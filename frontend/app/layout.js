@@ -1,5 +1,4 @@
 import "./globals.css";
-import Footer from "../components/Footer";
 
 export const metadata = {
   title: "ResumeAI Hub — AI Resume Analyzer",
@@ -11,7 +10,6 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         {children}
-        <Footer />
       </body>
     </html>
   );
