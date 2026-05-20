@@ -2,10 +2,7 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-inner">
-        <div className="footer-brand">
-          <span className="navbar-brand-dot" style={{ display: "inline-block" }} />
-          ResumeAI Hub
-        </div>
+        <img src="/ResumeAIHublogo.png" alt="ResumeAI Hub" style={{ height: "28px", width: "auto" }} />
         <div className="footer-links">
           <a href="/pricing">Pricing</a>
           <a href="/terms">Terms</a>
@@ -15,7 +12,7 @@ export default function Footer() {
         </div>
         <div className="footer-copy">
           © {new Date().getFullYear()} ResumeAI Hub · AI results are for guidance only ·{" "}
-          <a href="mailto:support@resumeaihub.com" style={{ color: "inherit" }}>support@resumeaihub.com</a>
+          support@resumeaihub.com
         </div>
       </div>
     </footer>

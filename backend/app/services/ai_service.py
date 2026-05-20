@@ -156,7 +156,7 @@ Rules:
 - If a skill is present semantically, do NOT list it as missing"""
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4o",
         temperature=0.2,
         response_format={"type": "json_object"},
         messages=[

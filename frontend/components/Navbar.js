@@ -3,10 +3,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 
-export default function Navbar() {
+export default function Navbar({ dark = false }) {
   const [session, setSession] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -39,40 +38,23 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="navbar">
-      <a className="navbar-brand" href="/">
-        <span className="navbar-brand-dot" />
-        ResumeAI Hub
+    <nav className={`navbar ${dark ? "navbar-dark" : ""}`}>
+      <a href="/">
+        <img src="/ResumeAIHublogo.png" alt="ResumeAI Hub" className="navbar-logo" />
       </a>
 
-      {/* Desktop nav */}
       <div className="navbar-links">
         <a className="navbar-link" href="/pricing">Pricing</a>
         {session && <a className="navbar-link" href="/dashboard">Dashboard</a>}
-        {isAdmin && <span className="admin-badge">⚡ Admin</span>}
+        {isAdmin && <span className="admin-badge">Admin</span>}
         {session ? (
-          <button className="btn-signout" onClick={handleSignOut}>Sign Out</button>
+          <button className="btn-nav btn-nav-ghost" onClick={handleSignOut}>Sign Out</button>
         ) : (
-          <a className="btn-signin" href="/dashboard">Sign In</a>
+          <a className="btn-nav btn-nav-primary" href="/dashboard">Get Started</a>
         )}
       </div>
 
-      {/* Mobile hamburger */}
-      <button className="navbar-hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-        {menuOpen ? "✕" : "☰"}
-      </button>
-
-      {menuOpen && (
-        <div className="navbar-mobile-menu">
-          <a href="/pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
-          {session && <a href="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</a>}
-          {session ? (
-            <button onClick={handleSignOut}>Sign Out</button>
-          ) : (
-            <a href="/dashboard" onClick={() => setMenuOpen(false)}>Sign In</a>
-          )}
-        </div>
-      )}
+      <button className="navbar-hamburger" aria-label="Menu">☰</button>
     </nav>
   );
 }

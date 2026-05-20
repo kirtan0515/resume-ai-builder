@@ -45,13 +45,12 @@ export default function Dashboard() {
   }
 
   return (
-    <>
-      <Navbar />
+    <div className="dashboard-page">
+      <Navbar dark />
 
-      <div className="hero" style={{ paddingBottom: "24px" }}>
-        <div className="hero-badge">✦ AI Resume Intelligence</div>
+      <div className="dashboard-hero">
         <h1>Analyze Your Resume</h1>
-        <p>Upload your resume, paste a job description, and get instant AI-powered feedback.</p>
+        <p>Upload your resume, paste a job description, and get evidence-based feedback.</p>
       </div>
 
       <main className="main-content">
@@ -79,6 +78,6 @@ export default function Dashboard() {
       </main>
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
-    </>
+    </div>
   );
 }
