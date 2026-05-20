@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 
-export default function Navbar({ dark = false }) {
+export default function Navbar() {
   const [session, setSession] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -38,23 +38,27 @@ export default function Navbar({ dark = false }) {
   }
 
   return (
-    <nav className={`navbar ${dark ? "navbar-dark" : ""}`}>
+    <nav className="nav">
       <a href="/">
-        <img src="/ResumeAIHublogo.png" alt="ResumeAI Hub" className="navbar-logo" />
+        <img src="/ResumeAIHublogo.png" alt="ResumeAI Hub" className="nav-logo" />
       </a>
 
-      <div className="navbar-links">
-        <a className="navbar-link" href="/pricing">Pricing</a>
-        {session && <a className="navbar-link" href="/dashboard">Dashboard</a>}
-        {isAdmin && <span className="admin-badge">Admin</span>}
+      <div className="nav-center">
+        <a className="nav-link" href="#how">How It Works</a>
+        <a className="nav-link" href="/pricing">Pricing</a>
+        {session && <a className="nav-link" href="/dashboard">Dashboard</a>}
+      </div>
+
+      <div className="nav-right">
+        {isAdmin && <span className="nav-admin">Admin</span>}
         {session ? (
-          <button className="btn-nav btn-nav-ghost" onClick={handleSignOut}>Sign Out</button>
+          <button className="nav-btn nav-btn-ghost" onClick={handleSignOut}>Sign Out</button>
         ) : (
-          <a className="btn-nav btn-nav-primary" href="/dashboard">Get Started</a>
+          <a className="nav-btn nav-btn-primary" href="/dashboard">Get Started</a>
         )}
       </div>
 
-      <button className="navbar-hamburger" aria-label="Menu">☰</button>
+      <button className="nav-hamburger" aria-label="Menu">☰</button>
     </nav>
   );
 }
