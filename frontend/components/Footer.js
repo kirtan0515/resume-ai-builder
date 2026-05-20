@@ -2,7 +2,7 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-inner">
-        <img src="/ResumeAIHublogo.png" alt="ResumeAI Hub" style={{ height: "28px", width: "auto" }} />
+        <img src="/ResumeAIHublogo.png" alt="ResumeAI Hub" style={{ height: "34px", width: "auto" }} />
         <div className="footer-links">
           <a href="/pricing">Pricing</a>
           <a href="/terms">Terms</a>

@@ -65,8 +65,8 @@ button { font-family: inherit; }
   justify-content: space-between;
   padding: 0 32px;
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--lt-border);
-  background: rgba(255,255,255,0.9);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(15,43,70,0.95);
 }
 
 .navbar-dark {
@@ -75,7 +75,7 @@ button { font-family: inherit; }
 }
 
 .navbar-logo {
-  height: 32px;
+  height: 40px;
   width: auto;
 }
 
@@ -88,15 +88,15 @@ button { font-family: inherit; }
 .navbar-link {
   font-size: 14px;
   font-weight: 500;
-  color: var(--lt-text-muted);
+  color: rgba(255,255,255,0.7);
   padding: 8px 14px;
   border-radius: var(--radius-sm);
   transition: color var(--transition), background var(--transition);
 }
 
 .navbar-link:hover {
-  color: var(--lt-text);
-  background: rgba(0,0,0,0.04);
+  color: white;
+  background: rgba(255,255,255,0.06);
 }
 
 .navbar-dark .navbar-link { color: var(--dk-text-muted); }
@@ -113,16 +113,16 @@ button { font-family: inherit; }
 }
 
 .btn-nav-primary {
-  background: var(--brand-navy);
+  background: var(--brand-cyan);
   color: white;
 }
 
-.btn-nav-primary:hover { background: #163a5c; }
+.btn-nav-primary:hover { background: var(--brand-teal); }
 
 .btn-nav-ghost {
   background: transparent;
-  color: var(--lt-text-muted);
-  border: 1px solid var(--lt-border);
+  color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
 .btn-nav-ghost:hover { border-color: var(--brand-cyan); color: var(--brand-cyan); }
@@ -200,8 +200,8 @@ button { font-family: inherit; }
   align-items: center;
   gap: 8px;
   background: transparent;
-  color: var(--brand-navy);
-  border: 1.5px solid var(--lt-border);
+  color: white;
+  border: 1.5px solid rgba(255,255,255,0.3);
   border-radius: var(--radius);
   padding: 13px 26px;
   font-size: 15px;
@@ -210,7 +210,7 @@ button { font-family: inherit; }
   transition: all var(--transition);
 }
 
-.btn-outline:hover { border-color: var(--brand-cyan); color: var(--brand-cyan); }
+.btn-outline:hover { border-color: var(--brand-cyan); color: var(--brand-cyan); background: rgba(0,180,216,0.08); }
 
 .btn-secondary {
   display: inline-flex;
@@ -300,12 +300,13 @@ button { font-family: inherit; }
    LANDING PAGE (Light theme)
    ══════════════════════════════════════════════════════════ */
 
-.landing { background: var(--lt-bg); color: var(--lt-text); }
+.landing { background: #f0f4f8; color: var(--lt-text); }
 
 .lp-hero {
   padding: 100px 32px 80px;
   text-align: center;
-  background: linear-gradient(180deg, #ffffff 0%, var(--lt-bg) 100%);
+  background: linear-gradient(170deg, var(--brand-navy) 0%, #163a5c 60%, #0c4a6e 100%);
+  color: white;
 }
 
 .lp-hero-inner { max-width: 720px; margin: 0 auto; }
@@ -314,9 +315,13 @@ button { font-family: inherit; }
   display: inline-block;
   font-size: 13px;
   font-weight: 600;
-  color: var(--brand-teal);
+  color: var(--brand-cyan);
   letter-spacing: 0.04em;
   margin-bottom: 20px;
+  background: rgba(0,180,216,0.1);
+  border: 1px solid rgba(0,180,216,0.3);
+  padding: 4px 14px;
+  border-radius: 20px;
 }
 
 .lp-h1 {
@@ -324,7 +329,7 @@ button { font-family: inherit; }
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.03em;
-  color: var(--brand-navy);
+  color: white;
   margin-bottom: 20px;
 }
 
@@ -339,7 +344,7 @@ button { font-family: inherit; }
 
 .lp-sub {
   font-size: 18px;
-  color: var(--lt-text-muted);
+  color: rgba(255,255,255,0.75);
   max-width: 540px;
   margin: 0 auto 36px;
   line-height: 1.7;
@@ -355,7 +360,7 @@ button { font-family: inherit; }
 
 .lp-cta-note {
   font-size: 13px;
-  color: var(--lt-text-light);
+  color: rgba(255,255,255,0.5);
 }
 
 /* Proof bar */
@@ -365,9 +370,8 @@ button { font-family: inherit; }
   gap: 40px;
   flex-wrap: wrap;
   padding: 24px 32px;
-  border-top: 1px solid var(--lt-border);
   border-bottom: 1px solid var(--lt-border);
-  background: white;
+  background: var(--brand-navy);
 }
 
 .lp-proof-item {
@@ -380,12 +384,12 @@ button { font-family: inherit; }
 .lp-proof-value {
   font-size: 20px;
   font-weight: 800;
-  color: var(--brand-navy);
+  color: var(--brand-cyan);
 }
 
 .lp-proof-label {
   font-size: 12px;
-  color: var(--lt-text-light);
+  color: rgba(255,255,255,0.5);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -426,12 +430,14 @@ button { font-family: inherit; }
   border: 1px solid var(--lt-border);
   border-radius: var(--radius-lg);
   padding: 28px;
-  transition: border-color var(--transition), box-shadow var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  box-shadow: var(--shadow-sm);
 }
 
 .lp-feature-card:hover {
   border-color: var(--brand-cyan);
-  box-shadow: 0 4px 20px rgba(0,180,216,0.08);
+  box-shadow: 0 8px 32px rgba(0,180,216,0.12);
+  transform: translateY(-2px);
 }
 
 .lp-feature-icon {
@@ -558,8 +564,12 @@ button { font-family: inherit; }
 .lp-final-cta {
   text-align: center;
   padding: 100px 32px;
-  background: linear-gradient(180deg, var(--lt-bg) 0%, #e8f4f8 100%);
+  background: linear-gradient(170deg, #0c4a6e 0%, var(--brand-navy) 100%);
+  color: white;
 }
+
+.lp-final-cta .lp-h2 { color: white; }
+.lp-final-cta .lp-sub { color: rgba(255,255,255,0.7); }
 
 /* Legal pages */
 .legal-page { max-width: 720px; margin: 0 auto; padding: 60px 24px 80px; color: var(--lt-text); }
