@@ -1,0 +1,11 @@
+# Copy this to terraform.tfvars and fill in your values
+
+aws_region    = "us-east-1"
+ami_id        = "ami-0c02fb55956c7d316"
+instance_type = "t2.micro"
+
+# Generate with: ssh-keygen -y -f ~/.ssh/resume-ai-key.pem
+public_key = "ssh-rsa AAAA..."
+
+# Optional: email for CloudWatch alarm notifications
+alarm_email = "kirtan.patel0515@gmail.com"
