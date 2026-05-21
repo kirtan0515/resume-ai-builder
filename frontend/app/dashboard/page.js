@@ -6,7 +6,6 @@ import ResumeForm from "../../components/ResumeForm";
 import AuthModal from "../../components/AuthModal";
 import Navbar from "../../components/Navbar";
 import BillingPanel from "../../components/BillingPanel";
-import JobMatcher from "../../components/JobMatcher";
 
 export default function Dashboard() {
   const [session, setSession] = useState(null);
@@ -63,7 +62,6 @@ export default function Dashboard() {
           <>
             <BillingPanel session={session} userMeta={userMeta} />
             <ResumeForm session={session} userMeta={userMeta} />
-            <JobMatcher session={session} userMeta={userMeta} resumeText="" />
           </>
         ) : (
           <div className="card signin-prompt">

@@ -4,7 +4,7 @@ from typing import List, Optional, Any, Dict
 
 class ResumeRequest(BaseModel):
     resume_text: str
-    job_description: str
+    job_description: str = ""
 
 
 class ReportRequest(BaseModel):
@@ -13,5 +13,5 @@ class ReportRequest(BaseModel):
 
 class JobSearchRequest(BaseModel):
     resume_text: str
-    job_title: str
+    job_title: str = ""
     location: str = "United States"

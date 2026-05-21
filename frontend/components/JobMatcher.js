@@ -14,7 +14,6 @@ export default function JobMatcher({ session, userMeta, resumeText }) {
 
   async function handleSearch(e) {
     e.preventDefault();
-    if (!jobTitle.trim()) { alert("Enter a job title to search."); return; }
     if (!resumeText || resumeText.trim().length < 20) { alert("Upload or paste your resume first."); return; }
 
     setLoading(true);

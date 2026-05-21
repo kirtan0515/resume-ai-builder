@@ -11,6 +11,7 @@ from app.schemas import ResumeRequest, ReportRequest, JobSearchRequest
 from app.services.ai_service import generate_resume_feedback
 from app.services.pdf_service import extract_text_from_pdf
 from app.services.job_service import find_matching_jobs
+from app.services.resume_only_service import analyze_resume_only
 from app.services.stripe_service import (
     create_checkout_session,
     create_portal_session,
@@ -207,6 +208,31 @@ async def get_me(request: Request):
         "current_period_end": user_record.get("current_period_end"),
         "stripe_customer_id": user_record.get("stripe_customer_id"),
     }
+
+
+# ── Resume-Only Analysis ──────────────────────────────────
+
+@app.post("/analyze-resume-only")
+@limiter.limit("20/hour")
+async def analyze_resume_only_endpoint(request: Request, data: ResumeRequest):
+    """Analyze resume without a job description — general quality + suggested titles."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+    ip = get_remote_address(request)
+    check_access(user_record, ip)
+
+    try:
+        result = analyze_resume_only(data.resume_text)
+
+        user_agent = request.headers.get("user-agent", "")
+        record_usage(user.id, user.email, ip, user_agent)
+        result["_role"] = user_record.get("role", "free")
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("RESUME-ONLY ERROR:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ── Job Matching ──────────────────────────────────────────

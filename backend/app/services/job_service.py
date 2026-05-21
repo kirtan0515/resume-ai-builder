@@ -145,10 +145,16 @@ Rules:
     return result
 
 
-async def find_matching_jobs(resume_text: str, job_title: str, location: str = "United States", limit: int = 15) -> list:
-    """Full pipeline: scrape jobs → score each → return ranked list."""
+async def find_matching_jobs(resume_text: str, job_title: str = "", location: str = "United States", limit: int = 15) -> list:
+    """Full pipeline: extract query if needed → scrape jobs → score each → return ranked list."""
+
+    # If no job title provided, extract from resume
+    search_query = job_title
+    if not search_query.strip():
+        search_query = extract_job_title_from_resume(resume_text)
+
     # Scrape jobs
-    jobs = await scrape_jobs(job_title, location, limit)
+    jobs = await scrape_jobs(search_query, location, limit)
 
     if not jobs:
         return []
@@ -165,3 +171,16 @@ async def find_matching_jobs(resume_text: str, job_title: str, location: str = "
     scored.sort(key=lambda x: x.get("match_score", 0), reverse=True)
 
     return scored
+
+
+def extract_job_title_from_resume(resume_text: str) -> str:
+    """Use GPT-4o to extract the best job search query from a resume."""
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        temperature=0.1,
+        messages=[
+            {"role": "system", "content": "Extract the single best job search query from this resume. Return ONLY the job title/search string, nothing else. Example: 'Software Engineer' or 'Data Analyst' or 'Registered Nurse'."},
+            {"role": "user", "content": f"Resume:\n{resume_text[:2000]}"},
+        ],
+    )
+    return response.choices[0].message.content.strip().strip('"')
