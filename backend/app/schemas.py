@@ -9,3 +9,9 @@ class ResumeRequest(BaseModel):
 
 class ReportRequest(BaseModel):
     analysis: Dict[str, Any]
+
+
+class JobSearchRequest(BaseModel):
+    resume_text: str
+    job_title: str
+    location: str = "United States"

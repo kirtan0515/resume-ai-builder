@@ -7,9 +7,10 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
-from app.schemas import ResumeRequest, ReportRequest
+from app.schemas import ResumeRequest, ReportRequest, JobSearchRequest
 from app.services.ai_service import generate_resume_feedback
 from app.services.pdf_service import extract_text_from_pdf
+from app.services.job_service import find_matching_jobs
 from app.services.stripe_service import (
     create_checkout_session,
     create_portal_session,
@@ -206,6 +207,33 @@ async def get_me(request: Request):
         "current_period_end": user_record.get("current_period_end"),
         "stripe_customer_id": user_record.get("stripe_customer_id"),
     }
+
+
+# ── Job Matching ──────────────────────────────────────────
+
+@app.post("/find-jobs")
+@limiter.limit("5/hour")
+async def find_jobs(request: Request, data: JobSearchRequest):
+    """Find and score matching jobs for the user's resume. Pro only."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+
+    # Pro/admin only
+    role = user_record.get("role", "free")
+    if role not in ("paid", "admin"):
+        raise HTTPException(status_code=402, detail="Job matching is a Pro feature. Upgrade to access.")
+
+    try:
+        results = await find_matching_jobs(
+            resume_text=data.resume_text,
+            job_title=data.job_title,
+            location=data.location,
+            limit=15,
+        )
+        return {"jobs": results, "query": data.job_title, "location": data.location}
+    except Exception as e:
+        print("JOB SEARCH ERROR:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ── Stripe endpoints ──────────────────────────────────────

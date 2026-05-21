@@ -881,3 +881,41 @@ textarea::placeholder, input::placeholder { color: var(--dk-text-muted); }
   .main-content { padding: 0 16px 60px; }
   .faq-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Job Matching ─────────────────────────────────────── */
+.job-results { display: flex; flex-direction: column; gap: 12px; }
+
+.job-card {
+  background: var(--dk-surface-2);
+  border: 1px solid var(--dk-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color var(--transition);
+}
+
+.job-card:hover { border-color: rgba(0,180,216,0.3); }
+
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.job-card-title { font-size: 16px; font-weight: 700; color: var(--dk-text); }
+.job-card-company { font-size: 13px; color: var(--dk-text-muted); margin-top: 2px; }
+.job-card-score { font-size: 24px; font-weight: 800; flex-shrink: 0; }
+.job-card-verdict { font-size: 13px; font-weight: 600; color: var(--brand); margin-bottom: 6px; }
+.job-card-reason { font-size: 14px; color: var(--dk-text-label); line-height: 1.5; margin-bottom: 12px; }
+
+.job-card-skills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+
+.job-card-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--brand);
+  transition: color var(--transition);
+}
+
+.job-card-link:hover { color: var(--brand-dark); }
