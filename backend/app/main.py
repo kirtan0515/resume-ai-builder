@@ -262,6 +262,87 @@ async def find_jobs(request: Request, data: JobSearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ── Resume Builder (Profile) ──────────────────────────────
+
+from app.services.resume_builder_service import generate_resume_from_profile
+
+@app.get("/profile")
+async def get_profile(request: Request):
+    """Get user's resume profile."""
+    user = verify_token(request)
+    sb = get_supabase()
+    result = sb.table("resume_profiles").select("*").eq("user_id", user.id).execute()
+    if result.data:
+        return result.data[0]
+    return {"empty": True}
+
+
+@app.post("/profile")
+async def save_profile(request: Request):
+    """Save or update user's resume profile."""
+    user = verify_token(request)
+    body = await request.json()
+    sb = get_supabase()
+
+    # Check if profile exists
+    existing = sb.table("resume_profiles").select("id").eq("user_id", user.id).execute()
+
+    profile_data = {
+        "user_id": user.id,
+        "name": body.get("name", ""),
+        "email": body.get("email", ""),
+        "phone": body.get("phone", ""),
+        "location": body.get("location", ""),
+        "linkedin": body.get("linkedin", ""),
+        "github": body.get("github", ""),
+        "website": body.get("website", ""),
+        "summary": body.get("summary", ""),
+        "skills": body.get("skills", []),
+        "experience": body.get("experience", []),
+        "education": body.get("education", []),
+        "projects": body.get("projects", []),
+        "certifications": body.get("certifications", []),
+        "template": body.get("template", "classic"),
+    }
+
+    if existing.data:
+        sb.table("resume_profiles").update(profile_data).eq("user_id", user.id).execute()
+    else:
+        sb.table("resume_profiles").insert(profile_data).execute()
+
+    return {"saved": True}
+
+
+@app.post("/generate-resume-pdf")
+async def generate_resume_pdf_endpoint(request: Request):
+    """Generate PDF from user's profile. Pro/admin only."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+
+    role = user_record.get("role", "free")
+    if role not in ("paid", "admin"):
+        raise HTTPException(status_code=402, detail="Resume PDF generation is a Pro feature.")
+
+    sb = get_supabase()
+    result = sb.table("resume_profiles").select("*").eq("user_id", user.id).execute()
+
+    if not result.data:
+        raise HTTPException(status_code=400, detail="No profile found. Save your profile first.")
+
+    profile = result.data[0]
+    template = profile.get("template", "classic")
+
+    try:
+        pdf_bytes = generate_resume_from_profile(profile, template)
+        return StreamingResponse(
+            iter([pdf_bytes]),
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=resume.pdf"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ── Admin Analytics (OWNER ONLY) ──────────────────────────
 
 OWNER_EMAIL = "kirtan.patel0515@gmail.com"
