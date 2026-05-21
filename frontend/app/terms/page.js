@@ -43,8 +43,14 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2>6. Free Tier Limitations</h2>
-          <p>Free accounts are limited to 2 lifetime analyses. We reserve the right to modify free tier limits at any time with reasonable notice.</p>
+          <h2>6. Subscription Terms</h2>
+          <p>Pro subscriptions are billed monthly at $9/month. You may cancel at any time from your dashboard. Upon cancellation, your Pro access continues until the end of your current billing period. No partial refunds are issued.</p>
+          <p>Due to the digital and AI-powered nature of this service, all purchases are final after usage. We encourage users to try the free tier before upgrading.</p>
+        </section>
+
+        <section>
+          <h2>7. Free Tier Limitations</h2>
+          <p>Free accounts are limited to 2 lifetime analyses. Job matching is available only to Pro subscribers. We reserve the right to modify free tier limits at any time with reasonable notice.</p>
         </section>
 
         <section>

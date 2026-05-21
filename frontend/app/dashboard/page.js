@@ -49,8 +49,8 @@ export default function Dashboard() {
       <Navbar dark />
 
       <div className="dashboard-hero">
-        <h1>Analyze Your Resume</h1>
-        <p>Upload your resume, paste a job description, and get evidence-based feedback.</p>
+        <h1>Resume Intelligence Dashboard</h1>
+        <p>Score your resume, get targeted feedback, or find matching jobs — all powered by GPT-4o.</p>
       </div>
 
       <main className="main-content">

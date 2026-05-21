@@ -15,10 +15,12 @@ export default function PrivacyPage() {
           <p>We collect the following information when you use ResumeAI Hub:</p>
           <ul>
             <li>Email address (required for account creation)</li>
-            <li>Resume text submitted for analysis (processed in real time, not stored)</li>
-            <li>Job descriptions submitted for analysis (processed in real time, not stored)</li>
+            <li>Resume text submitted for analysis (processed in real time, not stored permanently)</li>
+            <li>Job descriptions submitted for analysis (processed in real time, not stored permanently)</li>
+            <li>Job search queries when using the job matching feature</li>
             <li>Usage data: number of analyses performed, timestamps</li>
             <li>Technical data: IP address, browser user agent</li>
+            <li>Payment information (processed by Stripe — we do not store card details)</li>
           </ul>
         </section>
 
@@ -35,12 +37,13 @@ export default function PrivacyPage() {
 
         <section>
           <h2>3. Resume Data</h2>
-          <p>Resume text and job descriptions you submit are sent to OpenAI's API for processing. This data is processed in real time and is not stored in our database. We do not use your resume content to train AI models. Please review OpenAI's privacy policy at openai.com/privacy.</p>
+          <p>Resume text and job descriptions you submit are sent to OpenAI's API for processing. This data is processed in real time and is not permanently stored in our database. We do not use your resume content to train AI models. Please review OpenAI's privacy policy at openai.com/privacy.</p>
+          <p>Job matching searches use third-party job board data (via Apify). We do not share your resume with employers or job boards. Only publicly available job listing data is retrieved.</p>
         </section>
 
         <section>
-          <h2>4. We Do Not Sell Your Data</h2>
-          <p>We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>
+          <h2>4. Payment Data</h2>
+          <p>Payment processing is handled by Stripe. We do not store credit card numbers, CVVs, or full card details. Stripe's privacy policy applies to payment data. Charges may appear as "RESUMEAIHUB" on your statement.</p>
         </section>
 
         <section>

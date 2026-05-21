@@ -72,10 +72,10 @@ export default function LandingPage() {
           <p className="section-sub">Evidence-based feedback that explains why something is weak and how to fix it truthfully.</p>
           <div className="features-grid">
             {[
-              { n: "01", t: "ATS Keyword Matching", d: "Semantic matching that recognizes equivalent skills. FastAPI counts as REST APIs. RAG counts as AI integration." },
-              { n: "02", t: "Qualification Tiering", d: "Clearly separates required vs preferred vs bonus qualifications so you know what actually matters." },
-              { n: "03", t: "Evidence-Based Feedback", d: "Every weakness cites what we found or didn't find. No vague advice. No invented claims." },
-              { n: "04", t: "Recruiter-Style Assessment", d: "Calibrated verdicts that match scores. A 78 never says rejected. A 45 never says strong match." },
+              { n: "01", t: "Resume Quality Score", d: "Get an instant quality score without a job description. See your clarity, impact, technical depth, and ATS readiness." },
+              { n: "02", t: "Targeted Job Analysis", d: "Paste a job description for detailed match scoring with qualification tiering — required vs preferred vs bonus." },
+              { n: "03", t: "Smart Job Matching", d: "AI auto-detects your best job titles and finds real openings scored against your resume. Know your chances before applying." },
+              { n: "04", t: "Evidence-Based Feedback", d: "Every weakness cites what we found or didn't find. No vague advice. No invented claims. Just honest coaching." },
               { n: "05", t: "Internship-Aware Scoring", d: "Student resumes evaluated against junior expectations. Projects and coursework count as valid experience." },
               { n: "06", t: "Prioritized Fix List", d: "Know exactly what to change first, why it matters for this role, and how to implement it truthfully." },
             ].map((f, i) => (
@@ -98,17 +98,17 @@ export default function LandingPage() {
             <div className="how-step">
               <div className="how-step-num">1</div>
               <div className="how-step-title">Upload your resume</div>
-              <div className="how-step-desc">Drop a PDF or paste text. We extract content using semantic search to find the most relevant sections.</div>
+              <div className="how-step-desc">Drop a PDF or paste text. Get an instant quality score, suggested job titles, and key skills detected — no job description needed.</div>
             </div>
             <div className="how-step">
               <div className="how-step-num">2</div>
-              <div className="how-step-title">Paste the job description</div>
-              <div className="how-step-desc">Add the role you're targeting. Our AI compares qualifications, keywords, and experience alignment.</div>
+              <div className="how-step-title">Get targeted feedback</div>
+              <div className="how-step-desc">Paste a job description for detailed match analysis — qualification coverage, keyword gaps, evidence-based weaknesses, and prioritized fixes.</div>
             </div>
             <div className="how-step">
               <div className="how-step-num">3</div>
-              <div className="how-step-title">Get evidence-based feedback</div>
-              <div className="how-step-desc">Receive scores, qualification coverage, prioritized fixes, and truthful improvement suggestions.</div>
+              <div className="how-step-title">Find matching jobs</div>
+              <div className="how-step-desc">AI searches real job boards based on your resume, scores each job against your profile, and shows you where you have the best chances.</div>
             </div>
           </div>
         </div>
@@ -141,10 +141,11 @@ export default function LandingPage() {
               <div className="plan-price">$0</div>
               <div className="plan-period">2 lifetime analyses</div>
               <ul className="plan-features">
-                <li>Full analysis dashboard</li>
-                <li>ATS score + keyword gaps</li>
-                <li>Qualification matching</li>
-                <li>Top fix suggestions</li>
+                <li>Resume quality score (no JD needed)</li>
+                <li>Suggested job titles</li>
+                <li>ATS readiness score</li>
+                <li>Top improvement suggestions</li>
+                <li>Key skills detection</li>
               </ul>
               <a href="/dashboard" className="btn btn-md btn-outline-light plan-btn">Get Started Free</a>
             </div>
@@ -154,11 +155,13 @@ export default function LandingPage() {
               <div className="plan-price">$9<span>/mo</span></div>
               <div className="plan-period">Unlimited · Cancel anytime</div>
               <ul className="plan-features">
-                <li>Unlimited analyses</li>
+                <li>Unlimited resume analyses</li>
+                <li>Targeted job description matching</li>
+                <li>Smart job search + fit scoring</li>
+                <li>Qualification coverage breakdown</li>
+                <li>Tailored summary + improved bullets</li>
                 <li>Download improvement report</li>
                 <li>Version comparison</li>
-                <li>Tailored summary + improved bullets</li>
-                <li>Priority processing</li>
               </ul>
               <a href="/pricing" className="btn btn-md btn-brand plan-btn">Upgrade to Pro</a>
             </div>
