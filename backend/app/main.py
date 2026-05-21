@@ -256,7 +256,7 @@ async def find_jobs(request: Request, data: JobSearchRequest):
             location=data.location,
             limit=15,
         )
-        return {"jobs": results, "query": data.job_title, "location": data.location}
+        return results
     except Exception as e:
         print("JOB SEARCH ERROR:", str(e))
         raise HTTPException(status_code=500, detail=str(e))

@@ -82,7 +82,7 @@ export default function JobMatcher({ session, userMeta, resumeText }) {
           <input
             value={jobTitle}
             onChange={(e) => setJobTitle(e.target.value)}
-            placeholder="Job title (e.g. Software Engineer, Data Analyst)"
+            placeholder="Leave blank to auto-detect from resume, or type a title..."
             style={{ width: "100%" }}
           />
         </div>
@@ -122,32 +122,33 @@ export default function JobMatcher({ session, userMeta, resumeText }) {
       {results && results.jobs?.length > 0 && (
         <div className="job-results">
           <p style={{ fontSize: "13px", color: "var(--dk-text-muted)", marginBottom: "16px" }}>
-            Found {results.jobs.length} jobs for "{results.query}" in {results.location}
+            {results.jobs.length} jobs found for "<strong>{results.query}</strong>" in {results.location} — ranked by fit
           </p>
           {results.jobs.map((job, i) => (
             <div key={i} className="job-card">
               <div className="job-card-header">
                 <div>
                   <div className="job-card-title">{job.title}</div>
-                  <div className="job-card-company">{job.company} · {job.location}</div>
+                  <div className="job-card-company">{job.company}{job.location ? ` · ${job.location}` : ""}</div>
                 </div>
                 <div className="job-card-score" style={{ color: getScoreColor(job.match_score) }}>
                   {job.match_score}%
                 </div>
               </div>
-              <div className="job-card-verdict">{job.verdict}</div>
-              <p className="job-card-reason">{job.reason}</p>
+              <div className="job-card-verdict" style={{ color: getScoreColor(job.match_score) }}>{job.verdict}</div>
+              {job.why_good_fit && <p className="job-card-reason"><strong>Why:</strong> {job.why_good_fit}</p>}
+              {job.key_gap && <p className="job-card-reason" style={{ color: "var(--yellow)" }}><strong>Gap:</strong> {job.key_gap}</p>}
               <div className="job-card-skills">
                 {job.matched_skills?.map((s, j) => (
-                  <span key={j} className="tag tag-qual-met">{s}</span>
+                  <span key={j} className="tag tag-qual-met">{s} ✓</span>
                 ))}
                 {job.missing_skills?.map((s, j) => (
-                  <span key={j} className="tag tag-danger">{s}</span>
+                  <span key={j} className="tag tag-danger">{s} ✗</span>
                 ))}
               </div>
               {job.url && (
                 <a href={job.url} target="_blank" rel="noopener noreferrer" className="job-card-link">
-                  View Job →
+                  Apply / View Job →
                 </a>
               )}
             </div>
