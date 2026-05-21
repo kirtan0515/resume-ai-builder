@@ -4,7 +4,7 @@ export const metadata = { title: "Privacy Policy — ResumeAI Hub" };
 
 export default function PrivacyPage() {
   return (
-    <>
+    <div className="landing-page">
       <Navbar />
       <div className="legal-page">
         <h1>Privacy Policy</h1>
@@ -68,6 +68,6 @@ export default function PrivacyPage() {
           <p>Privacy questions? Contact us at support@resumeaihub.com.</p>
         </section>
       </div>
-    </>
+    </div>
   );
 }

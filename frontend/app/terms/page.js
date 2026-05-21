@@ -4,7 +4,7 @@ export const metadata = { title: "Terms of Service — ResumeAI Hub" };
 
 export default function TermsPage() {
   return (
-    <>
+    <div className="landing-page">
       <Navbar />
       <div className="legal-page">
         <h1>Terms of Service</h1>
@@ -72,6 +72,6 @@ export default function TermsPage() {
           <p>Questions about these Terms? Contact us at support@resumeaihub.com.</p>
         </section>
       </div>
-    </>
+    </div>
   );
 }

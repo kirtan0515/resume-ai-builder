@@ -4,7 +4,7 @@ export const metadata = { title: "AI Disclaimer — ResumeAI Hub" };
 
 export default function DisclaimerPage() {
   return (
-    <>
+    <div className="landing-page">
       <Navbar />
       <div className="legal-page">
         <h1>AI Disclaimer</h1>
@@ -40,6 +40,6 @@ export default function DisclaimerPage() {
           <p>Questions? Contact us at support@resumeaihub.com.</p>
         </section>
       </div>
-    </>
+    </div>
   );
 }

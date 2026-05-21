@@ -362,14 +362,15 @@ img { max-width: 100%; }
 }
 
 .company-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.25);
-  letter-spacing: 0.02em;
+  font-size: 18px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: -0.01em;
   transition: color var(--transition);
+  text-transform: none;
 }
 
-.company-name:hover { color: rgba(255,255,255,0.5); }
+.company-name:hover { color: rgba(255,255,255,0.6); }
 
 /* Features section */
 .features-section {
@@ -845,7 +846,7 @@ textarea::placeholder, input::placeholder { color: var(--dk-text-muted); }
 .signin-prompt-title { font-size: 22px; font-weight: 800; color: var(--dk-text); margin-bottom: 10px; }
 .signin-prompt-body { font-size: 15px; color: var(--dk-text-muted); margin-bottom: 28px; max-width: 360px; margin-left: auto; margin-right: auto; }
 
-.billing-page { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 120px); padding: 40px 24px; background: var(--dk-bg); }
+.billing-page { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 72px); padding: 40px 24px; background: var(--navy); }
 .billing-card { background: var(--dk-surface); border: 1px solid var(--dk-border); border-radius: var(--radius-lg); padding: 48px 40px; max-width: 480px; width: 100%; text-align: center; }
 .billing-icon { font-size: 48px; margin-bottom: 20px; }
 .billing-card h1 { font-size: 28px; font-weight: 800; color: var(--dk-text); margin-bottom: 12px; }
@@ -854,11 +855,11 @@ textarea::placeholder, input::placeholder { color: var(--dk-text-muted); }
 .billing-feature { font-size: 14px; color: var(--green); font-weight: 500; }
 
 /* Legal pages */
-.legal-page { max-width: 720px; margin: 0 auto; padding: 100px 24px 80px; color: var(--dk-text); }
-.legal-page h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+.legal-page { max-width: 720px; margin: 0 auto; padding: 100px 24px 80px; color: var(--dk-text); background: var(--navy); min-height: 100vh; }
+.legal-page h1 { font-size: 36px; font-weight: 800; margin-bottom: 8px; color: white; }
 .legal-date { font-size: 13px; color: var(--dk-text-muted); margin-bottom: 48px; }
 .legal-page section { margin-bottom: 36px; }
-.legal-page h2 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.legal-page h2 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: white; }
 .legal-page p { font-size: 15px; color: var(--dk-text-label); line-height: 1.7; margin-bottom: 10px; }
 .legal-page ul { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .legal-page ul li { font-size: 15px; color: var(--dk-text-label); line-height: 1.6; }
