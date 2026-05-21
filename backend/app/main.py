@@ -265,6 +265,7 @@ async def find_jobs(request: Request, data: JobSearchRequest):
 # ── Resume Builder (Profile) ──────────────────────────────
 
 from app.services.resume_builder_service import generate_resume_from_profile
+from app.services.latex_generator import generate_latex_resume
 
 @app.get("/profile")
 async def get_profile(request: Request):
@@ -330,10 +331,9 @@ async def generate_resume_pdf_endpoint(request: Request):
         raise HTTPException(status_code=400, detail="No profile found. Save your profile first.")
 
     profile = result.data[0]
-    template = profile.get("template", "classic")
 
     try:
-        pdf_bytes = generate_resume_from_profile(profile, template)
+        pdf_bytes = generate_resume_from_profile(profile)
         return StreamingResponse(
             iter([pdf_bytes]),
             media_type="application/pdf",
@@ -341,6 +341,93 @@ async def generate_resume_pdf_endpoint(request: Request):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/generate-resume-latex")
+async def generate_resume_latex_endpoint(request: Request):
+    """Generate LaTeX file from user's profile. Pro/admin only."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+
+    role = user_record.get("role", "free")
+    if role not in ("paid", "admin"):
+        raise HTTPException(status_code=402, detail="LaTeX export is a Pro feature.")
+
+    sb = get_supabase()
+    result = sb.table("resume_profiles").select("*").eq("user_id", user.id).execute()
+
+    if not result.data:
+        raise HTTPException(status_code=400, detail="No profile found. Save your profile first.")
+
+    profile = result.data[0]
+
+    try:
+        latex_content = generate_latex_resume(profile)
+        return StreamingResponse(
+            iter([latex_content.encode("utf-8")]),
+            media_type="application/x-latex",
+            headers={"Content-Disposition": "attachment; filename=resume.tex"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/auto-fill-profile")
+async def auto_fill_profile(request: Request, data: ResumeRequest):
+    """Extract structured profile data from resume text using AI."""
+    user = verify_token(request)
+
+    prompt = f"""Extract structured resume data from this text. Return ONLY valid JSON.
+
+Resume:
+{data.resume_text[:4000]}
+
+Return this exact JSON structure:
+{{
+  "name": "",
+  "email": "",
+  "phone": "",
+  "location": "",
+  "linkedin": "",
+  "github": "",
+  "website": "",
+  "summary": "",
+  "skills": ["skill1", "skill2"],
+  "experience": [
+    {{"title": "", "company": "", "dates": "", "location": "", "bullets": [""]}}
+  ],
+  "education": [
+    {{"school": "", "degree": "", "dates": "", "coursework": ""}}
+  ],
+  "projects": [
+    {{"title": "", "tech": "", "bullets": [""]}}
+  ],
+  "certifications": ["cert1"]
+}}
+
+Rules:
+- Extract exactly what is in the resume, do not invent anything
+- If a field is not found, use empty string or empty array
+- Keep bullet points as-is from the resume
+- Skills should be individual items"""
+
+    from openai import OpenAI as OAI
+    import json as j
+    c = OAI(api_key=os.environ.get("OPENAI_API_KEY"))
+    resp = c.chat.completions.create(
+        model="gpt-4o",
+        temperature=0.1,
+        response_format={"type": "json_object"},
+        messages=[
+            {"role": "system", "content": "Extract structured data from resumes. Return only valid JSON."},
+            {"role": "user", "content": prompt},
+        ],
+    )
+    content = resp.choices[0].message.content.strip()
+    try:
+        return j.loads(content)
+    except:
+        return j.loads(content.replace("```json", "").replace("```", "").strip())
 
 
 # ── Admin Analytics (OWNER ONLY) ──────────────────────────

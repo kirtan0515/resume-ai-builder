@@ -100,7 +100,6 @@ export default function BuilderPage() {
   async function handleGenerate() {
     const isPro = userMeta?.role === "paid" || userMeta?.role === "admin";
     if (!isPro) { window.location.href = "/pricing"; return; }
-
     setGenerating(true);
     try {
       const res = await fetch(`${API_URL}/generate-resume-pdf`, {
@@ -111,17 +110,62 @@ export default function BuilderPage() {
       if (!res.ok) { alert("Failed to generate PDF."); return; }
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "resume.pdf";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      const a = document.createElement("a"); a.href = url; a.download = "resume.pdf";
+      document.body.appendChild(a); a.click(); a.remove();
       window.URL.revokeObjectURL(url);
     } catch { alert("Could not connect."); }
     finally { setGenerating(false); }
   }
 
+  async function handleLatex() {
+    const isPro = userMeta?.role === "paid" || userMeta?.role === "admin";
+    if (!isPro) { window.location.href = "/pricing"; return; }
+    setGenerating(true);
+    try {
+      const res = await fetch(`${API_URL}/generate-resume-latex`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (res.status === 402) { window.location.href = "/pricing"; return; }
+      if (!res.ok) { alert("Failed to generate LaTeX."); return; }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href = url; a.download = "resume.tex";
+      document.body.appendChild(a); a.click(); a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch { alert("Could not connect."); }
+    finally { setGenerating(false); }
+  }
+
+  async function handleAutoFill() {
+    const resumeText = prompt("Paste your resume text here to auto-fill the builder:");
+    if (!resumeText || resumeText.trim().length < 20) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_URL}/auto-fill-profile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ resume_text: resumeText }),
+      });
+      if (!res.ok) { alert("Could not extract profile data."); return; }
+      const data = await res.json();
+      if (data.name) setName(data.name);
+      if (data.email) setEmail(data.email);
+      if (data.phone) setPhone(data.phone);
+      if (data.location) setLocation(data.location);
+      if (data.linkedin) setLinkedin(data.linkedin);
+      if (data.github) setGithub(data.github);
+      if (data.website) setWebsite(data.website);
+      if (data.summary) setSummary(data.summary);
+      if (data.skills?.length) setSkills(data.skills.join(", "));
+      if (data.experience?.length) setExperience(data.experience);
+      if (data.projects?.length) setProjects(data.projects);
+      if (data.education?.length) setEducation(data.education);
+      if (data.certifications?.length) setCertifications(data.certifications.join("\n"));
+      alert("Profile auto-filled from your resume!");
+    } catch { alert("Could not connect."); }
+    finally { setSaving(false); }
+  }
   function updateExp(i, field, val) { setExperience(prev => prev.map((e, idx) => idx === i ? { ...e, [field]: val } : e)); }
   function updateExpBullet(i, bi, val) { setExperience(prev => prev.map((e, idx) => idx === i ? { ...e, bullets: e.bullets.map((b, j) => j === bi ? val : b) } : e)); }
   function addExpBullet(i) { setExperience(prev => prev.map((e, idx) => idx === i ? { ...e, bullets: [...e.bullets, ""] } : e)); }
@@ -239,11 +283,17 @@ export default function BuilderPage() {
 
         {/* Actions */}
         <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "8px" }}>
+          <button className="btn btn-md btn-secondary" onClick={handleAutoFill} disabled={saving}>
+            {saving ? "Extracting..." : "Auto-Fill from Resume"}
+          </button>
           <button className="btn btn-lg btn-brand" onClick={handleSave} disabled={saving}>
             {saving ? <><span className="spinner" /> Saving...</> : saved ? "✓ Saved" : "Save Profile"}
           </button>
           <button className="btn btn-lg btn-outline-light" onClick={handleGenerate} disabled={generating}>
-            {generating ? <><span className="spinner" /> Generating...</> : isPro ? "Download Resume PDF" : "🔒 Download PDF (Pro)"}
+            {generating ? <><span className="spinner" /> Generating...</> : isPro ? "Download PDF" : "🔒 PDF (Pro)"}
+          </button>
+          <button className="btn btn-lg btn-outline-light" onClick={handleLatex} disabled={generating}>
+            {isPro ? "Download LaTeX (.tex)" : "🔒 LaTeX (Pro)"}
           </button>
         </div>
 
