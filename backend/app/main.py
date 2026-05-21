@@ -262,6 +262,108 @@ async def find_jobs(request: Request, data: JobSearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ── Admin Analytics (OWNER ONLY) ──────────────────────────
+
+OWNER_EMAIL = "kirtan.patel0515@gmail.com"
+
+@app.get("/admin/analytics")
+async def admin_analytics(request: Request):
+    """Owner-only analytics. Hardcoded to kirtan.patel0515@gmail.com."""
+    user = verify_token(request)
+
+    # Double check: must be exact email AND admin role
+    if user.email != OWNER_EMAIL:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    user_record = get_or_create_user_record(user)
+    if user_record.get("role") != "admin":
+        raise HTTPException(status_code=404, detail="Not found")
+
+    sb = get_supabase()
+
+    # Get all users
+    users_res = sb.table("users").select("*").execute()
+    users = users_res.data or []
+
+    total_users = len(users)
+    paid_users = len([u for u in users if u.get("role") == "paid"])
+    free_users = len([u for u in users if u.get("role") == "free"])
+    blocked_users = len([u for u in users if u.get("role") == "blocked"])
+
+    total_analyses = sum(u.get("lifetime_analyses", 0) for u in users)
+    total_daily = sum(u.get("daily_analyses", 0) for u in users)
+
+    # Revenue
+    active_subs = len([u for u in users if u.get("subscription_status") == "active"])
+    monthly_revenue = active_subs * 9
+
+    # Cost estimation (per analysis)
+    # GPT-4o: ~$0.03 per analysis, ~$0.05 per job search, embeddings: ~$0.001
+    cost_per_analysis = 0.035
+    cost_per_job_search = 0.06
+    estimated_total_cost = total_analyses * cost_per_analysis
+    estimated_daily_cost = total_daily * cost_per_analysis
+
+    # Profit/loss
+    monthly_profit = monthly_revenue - (estimated_total_cost * 2)  # rough monthly estimate
+
+    # Recent usage logs
+    logs_res = sb.table("usage_logs").select("*").order("created_at", desc=True).limit(30).execute()
+    recent_logs = logs_res.data or []
+
+    # Recent signups
+    recent_users = sorted(users, key=lambda u: u.get("created_at", ""), reverse=True)[:15]
+
+    # Unique IPs today
+    today_ips = set()
+    for log in recent_logs:
+        if log.get("ip"):
+            today_ips.add(log["ip"])
+
+    return {
+        "summary": {
+            "total_users": total_users,
+            "paid_users": paid_users,
+            "free_users": free_users,
+            "blocked_users": blocked_users,
+            "active_subscriptions": active_subs,
+            "monthly_revenue_usd": monthly_revenue,
+            "total_analyses_all_time": total_analyses,
+            "total_analyses_today": total_daily,
+            "unique_ips_recent": len(today_ips),
+        },
+        "costs": {
+            "cost_per_analysis_usd": cost_per_analysis,
+            "cost_per_job_search_usd": cost_per_job_search,
+            "estimated_total_cost_usd": round(estimated_total_cost, 2),
+            "estimated_daily_cost_usd": round(estimated_daily_cost, 2),
+            "monthly_revenue_usd": monthly_revenue,
+            "estimated_monthly_profit_usd": round(monthly_profit, 2),
+        },
+        "recent_users": [
+            {
+                "email": u.get("email"),
+                "role": u.get("role"),
+                "lifetime_analyses": u.get("lifetime_analyses", 0),
+                "daily_analyses": u.get("daily_analyses", 0),
+                "created_at": u.get("created_at"),
+                "subscription_status": u.get("subscription_status"),
+                "last_ip": u.get("last_ip"),
+            }
+            for u in recent_users
+        ],
+        "recent_activity": [
+            {
+                "email": log.get("email"),
+                "ip": log.get("ip"),
+                "user_agent": (log.get("user_agent") or "")[:80],
+                "created_at": log.get("created_at"),
+            }
+            for log in recent_logs
+        ],
+    }
+
+
 # ── Stripe endpoints ──────────────────────────────────────
 
 @app.post("/create-checkout-session")

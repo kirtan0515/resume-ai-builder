@@ -951,3 +951,81 @@ textarea::placeholder, input::placeholder { color: var(--dk-text-muted); }
   color: var(--brand);
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
+
+/* ── Admin Dashboard ──────────────────────────────────── */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.admin-stat-card {
+  background: var(--dk-surface);
+  border: 1px solid var(--dk-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+}
+
+.admin-stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--dk-text);
+  margin-bottom: 4px;
+}
+
+.admin-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dk-text-muted);
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--dk-text-muted);
+  border-bottom: 1px solid var(--dk-border);
+}
+
+.admin-table td {
+  padding: 10px 12px;
+  color: var(--dk-text-label);
+  border-bottom: 1px solid var(--dk-border);
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.role-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.role-admin { background: rgba(0,180,216,0.1); color: var(--brand); }
+.role-paid { background: rgba(16,185,129,0.1); color: var(--green); }
+.role-free { background: rgba(255,255,255,0.05); color: var(--dk-text-muted); }
+.role-blocked { background: rgba(239,68,68,0.1); color: var(--red); }
+
+@media (max-width: 768px) {
+  .admin-grid { grid-template-columns: repeat(2, 1fr); }
+}
