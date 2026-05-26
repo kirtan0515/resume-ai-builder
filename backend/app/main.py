@@ -388,6 +388,7 @@ async def save_profile(request: Request):
         "projects": body.get("projects", []),
         "certifications": body.get("certifications", []),
         "template": body.get("template", "classic"),
+        "resume_text": body.get("resume_text", ""),
     }
 
     if existing.data:

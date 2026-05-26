@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import Navbar from "../../components/Navbar";
+import ResumeUploader from "../../components/ResumeUploader";
 import API_URL from "../../lib/api";
 
 export default function InterviewPage() {
@@ -12,6 +13,7 @@ export default function InterviewPage() {
   const [generating, setGenerating] = useState(false);
   const [resumeText, setResumeText] = useState("");
   const [jobDescription, setJobDescription] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [questions, setQuestions] = useState(null);
   const [practiceMode, setPracticeMode] = useState(false);
   const [currentQ, setCurrentQ] = useState(0);
@@ -22,7 +24,10 @@ export default function InterviewPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchMeta(session.access_token);
+      if (session) {
+        fetchMeta(session.access_token);
+        loadProfile(session.access_token);
+      }
       setLoading(false);
     });
   }, []);
@@ -32,6 +37,28 @@ export default function InterviewPage() {
       const res = await fetch(`${API_URL}/me`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setUserMeta(await res.json());
     } catch {}
+  }
+
+  async function loadProfile(token) {
+    try {
+      const res = await fetch(`${API_URL}/profile`, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        if (!data.empty && data.resume_text) setResumeText(data.resume_text);
+      }
+    } catch {}
+  }
+
+  function handleResumeExtracted(text) {
+    setResumeText(text);
+    // Save to profile
+    if (session) {
+      fetch(`${API_URL}/profile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ resume_text: text }),
+      }).catch(() => {});
+    }
   }
 
   const isPro = userMeta?.role === "paid" || userMeta?.role === "admin";
@@ -99,15 +126,12 @@ export default function InterviewPage() {
           <form onSubmit={handleGenerate}>
             <div className="card">
               <div className="card-title">Generate Interview Questions</div>
-              <div className="form-group">
-                <label className="form-label">Your Resume</label>
-                <textarea rows={6} value={resumeText} onChange={e => setResumeText(e.target.value)} placeholder="Paste your resume text..." />
-              </div>
-              <div className="form-group">
+              <ResumeUploader resumeText={resumeText} onExtracted={handleResumeExtracted} uploading={uploading} setUploading={setUploading} apiUrl={API_URL} />
+              <div className="form-group" style={{ marginTop: "16px" }}>
                 <label className="form-label">Job Description</label>
                 <textarea rows={6} value={jobDescription} onChange={e => setJobDescription(e.target.value)} placeholder="Paste the job description..." />
               </div>
-              <button className="btn btn-lg btn-brand" type="submit" disabled={generating} style={{ width: "100%" }}>
+              <button className="btn btn-lg btn-brand" type="submit" disabled={generating || !resumeText.trim()} style={{ width: "100%" }}>
                 {generating ? <><span className="spinner" /> Generating questions...</> : "Generate Interview Questions"}
               </button>
             </div>

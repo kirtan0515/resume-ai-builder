@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import Navbar from "../../components/Navbar";
+import ResumeUploader from "../../components/ResumeUploader";
 import API_URL from "../../lib/api";
 
 export default function CoverLetterPage() {
@@ -16,11 +17,15 @@ export default function CoverLetterPage() {
   const [tone, setTone] = useState("professional");
   const [result, setResult] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchMeta(session.access_token);
+      if (session) {
+        fetchMeta(session.access_token);
+        loadProfile(session.access_token);
+      }
       setLoading(false);
     });
   }, []);
@@ -30,6 +35,27 @@ export default function CoverLetterPage() {
       const res = await fetch(`${API_URL}/me`, { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setUserMeta(await res.json());
     } catch {}
+  }
+
+  async function loadProfile(token) {
+    try {
+      const res = await fetch(`${API_URL}/profile`, { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        if (!data.empty && data.resume_text) setResumeText(data.resume_text);
+      }
+    } catch {}
+  }
+
+  function handleResumeExtracted(text) {
+    setResumeText(text);
+    if (session) {
+      fetch(`${API_URL}/profile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ resume_text: text }),
+      }).catch(() => {});
+    }
   }
 
   const isPro = userMeta?.role === "paid" || userMeta?.role === "admin";
@@ -84,11 +110,8 @@ export default function CoverLetterPage() {
           <form onSubmit={handleGenerate}>
             <div className="card">
               <div className="card-title">Generate Cover Letter</div>
-              <div className="form-group">
-                <label className="form-label">Your Resume</label>
-                <textarea rows={6} value={resumeText} onChange={e => setResumeText(e.target.value)} placeholder="Paste your resume text..." />
-              </div>
-              <div className="form-group">
+              <ResumeUploader resumeText={resumeText} onExtracted={handleResumeExtracted} uploading={uploading} setUploading={setUploading} apiUrl={API_URL} />
+              <div className="form-group" style={{ marginTop: "16px" }}>
                 <label className="form-label">Job Description</label>
                 <textarea rows={6} value={jobDescription} onChange={e => setJobDescription(e.target.value)} placeholder="Paste the job description..." />
               </div>

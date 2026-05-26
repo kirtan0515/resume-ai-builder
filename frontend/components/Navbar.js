@@ -50,6 +50,7 @@ export default function Navbar() {
         {session && <a className="nav-link" href="/builder">Builder</a>}
         {session && <a className="nav-link" href="/interview">Interview</a>}
         {session && <a className="nav-link" href="/cover-letter">Cover Letter</a>}
+        {session && <a className="nav-link" href="/profile">Profile</a>}
       </div>
 
       <div className="nav-right">
