@@ -262,6 +262,61 @@ async def find_jobs(request: Request, data: JobSearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ── Salary Negotiation ─────────────────────────────────────
+
+from app.services.salary_service import generate_salary_analysis
+
+@app.post("/salary-analysis")
+@limiter.limit("10/hour")
+async def salary_analysis(request: Request):
+    """Generate salary estimate and negotiation guidance. Pro/admin only."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+    if user_record.get("role") not in ("paid", "admin"):
+        raise HTTPException(status_code=402, detail="Salary analysis is a Pro feature.")
+
+    body = await request.json()
+    resume_text = body.get("resume_text", "")
+    job_description = body.get("job_description", "")
+    company_name = body.get("company_name", "")
+    location = body.get("location", "")
+
+    if not resume_text or not job_description:
+        raise HTTPException(status_code=400, detail="Resume and job description required.")
+
+    try:
+        result = generate_salary_analysis(resume_text, job_description, company_name, location)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── Ghost Job Detector ─────────────────────────────────────
+
+from app.services.ghost_job_service import analyze_ghost_job
+
+@app.post("/ghost-job-check")
+@limiter.limit("15/hour")
+async def ghost_job_check(request: Request):
+    """Analyze if a job posting might be a ghost job."""
+    user = verify_token(request)
+
+    body = await request.json()
+    job_description = body.get("job_description", "")
+    company_name = body.get("company_name", "")
+    posted_date = body.get("posted_date", "")
+    url = body.get("url", "")
+
+    if not job_description:
+        raise HTTPException(status_code=400, detail="Job description required.")
+
+    try:
+        result = analyze_ghost_job(job_description, company_name, posted_date, url)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ── Application Tracker ────────────────────────────────────
 
 @app.get("/applications")
