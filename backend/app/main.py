@@ -262,6 +262,144 @@ async def find_jobs(request: Request, data: JobSearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ── Application Tracker ────────────────────────────────────
+
+@app.get("/applications")
+async def get_applications(request: Request):
+    """Get all user's tracked applications."""
+    user = verify_token(request)
+    sb = get_supabase()
+    result = sb.table("applications").select("*").eq("user_id", user.id).order("created_at", desc=True).execute()
+    return {"applications": result.data or []}
+
+
+@app.post("/applications")
+async def add_application(request: Request):
+    """Add a new job application to tracker."""
+    user = verify_token(request)
+    body = await request.json()
+
+    title = body.get("title", "")
+    company = body.get("company", "")
+    if not title or not company:
+        raise HTTPException(status_code=400, detail="Title and company are required.")
+
+    sb = get_supabase()
+
+    # Auto-score against saved resume if available
+    match_score = 0
+    profile_res = sb.table("resume_profiles").select("resume_text").eq("user_id", user.id).execute()
+    if profile_res.data and profile_res.data[0].get("resume_text"):
+        resume_text = profile_res.data[0]["resume_text"]
+        jd = body.get("job_description", "")
+        if jd and len(jd) > 50:
+            # Quick score using GPT-4o
+            try:
+                from openai import OpenAI as OAI
+                import json as j
+                c = OAI(api_key=os.environ.get("OPENAI_API_KEY"))
+                resp = c.chat.completions.create(
+                    model="gpt-4o",
+                    temperature=0.1,
+                    response_format={"type": "json_object"},
+                    messages=[
+                        {"role": "system", "content": "Score resume-job fit. Return JSON: {\"score\": 0} where score is 0-100."},
+                        {"role": "user", "content": f"Resume:\n{resume_text[:1500]}\n\nJob:\n{jd[:1000]}\n\nReturn {{\"score\": X}} only."},
+                    ],
+                )
+                score_data = j.loads(resp.choices[0].message.content.strip())
+                match_score = int(score_data.get("score", 0))
+            except:
+                pass
+
+    app_data = {
+        "user_id": user.id,
+        "title": title,
+        "company": company,
+        "url": body.get("url", ""),
+        "location": body.get("location", ""),
+        "status": body.get("status", "applied"),
+        "match_score": match_score,
+        "notes": body.get("notes", ""),
+        "applied_date": body.get("applied_date", None),
+    }
+
+    sb.table("applications").insert(app_data).execute()
+    return {"saved": True, "match_score": match_score}
+
+
+@app.patch("/applications/{app_id}")
+async def update_application(request: Request, app_id: str):
+    """Update application status or details."""
+    user = verify_token(request)
+    body = await request.json()
+    sb = get_supabase()
+
+    # Verify ownership
+    existing = sb.table("applications").select("user_id").eq("id", app_id).execute()
+    if not existing.data or existing.data[0]["user_id"] != user.id:
+        raise HTTPException(status_code=404, detail="Application not found.")
+
+    update_data = {}
+    for field in ["title", "company", "url", "location", "status", "notes", "applied_date"]:
+        if field in body:
+            update_data[field] = body[field]
+
+    if update_data:
+        sb.table("applications").update(update_data).eq("id", app_id).execute()
+
+    return {"updated": True}
+
+
+@app.delete("/applications/{app_id}")
+async def delete_application(request: Request, app_id: str):
+    """Delete an application."""
+    user = verify_token(request)
+    sb = get_supabase()
+
+    existing = sb.table("applications").select("user_id").eq("id", app_id).execute()
+    if not existing.data or existing.data[0]["user_id"] != user.id:
+        raise HTTPException(status_code=404, detail="Application not found.")
+
+    sb.table("applications").delete().eq("id", app_id).execute()
+    return {"deleted": True}
+
+
+@app.get("/applications/stats")
+async def application_stats(request: Request):
+    """Get application statistics and insights."""
+    user = verify_token(request)
+    sb = get_supabase()
+    result = sb.table("applications").select("*").eq("user_id", user.id).execute()
+    apps = result.data or []
+
+    total = len(apps)
+    by_status = {}
+    scores = []
+    interview_scores = []
+
+    for app in apps:
+        status = app.get("status", "applied")
+        by_status[status] = by_status.get(status, 0) + 1
+        if app.get("match_score"):
+            scores.append(app["match_score"])
+            if status in ("interview", "offer"):
+                interview_scores.append(app["match_score"])
+
+    avg_score = round(sum(scores) / len(scores)) if scores else 0
+    avg_interview_score = round(sum(interview_scores) / len(interview_scores)) if interview_scores else 0
+    interview_rate = round((by_status.get("interview", 0) + by_status.get("offer", 0)) / total * 100) if total > 0 else 0
+
+    return {
+        "total": total,
+        "by_status": by_status,
+        "avg_match_score": avg_score,
+        "avg_interview_score": avg_interview_score,
+        "interview_rate": interview_rate,
+        "insight": f"You get interviews {interview_rate}% of the time. Applications with 70%+ match score are {2 if avg_interview_score > avg_score else 1}x more likely to get callbacks." if total > 3 else "Add more applications to see insights.",
+    }
+
+
 # ── Cover Letter Generator ────────────────────────────────
 
 from app.services.cover_letter_service import generate_cover_letter

@@ -47,6 +47,7 @@ export default function Navbar() {
         <a className="nav-link" href="#how">How It Works</a>
         <a className="nav-link" href="/pricing">Pricing</a>
         {session && <a className="nav-link" href="/dashboard">Dashboard</a>}
+        {session && <a className="nav-link" href="/tracker">Tracker</a>}
         {session && <a className="nav-link" href="/builder">Builder</a>}
         {session && <a className="nav-link" href="/interview">Interview</a>}
         {session && <a className="nav-link" href="/cover-letter">Cover Letter</a>}
