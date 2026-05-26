@@ -262,6 +262,90 @@ async def find_jobs(request: Request, data: JobSearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ── Cover Letter Generator ────────────────────────────────
+
+from app.services.cover_letter_service import generate_cover_letter
+
+@app.post("/generate-cover-letter")
+@limiter.limit("10/hour")
+async def cover_letter_endpoint(request: Request):
+    """Generate a personalized cover letter. Pro/admin only."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+
+    role = user_record.get("role", "free")
+    if role not in ("paid", "admin"):
+        raise HTTPException(status_code=402, detail="Cover letter generation is a Pro feature.")
+
+    body = await request.json()
+    resume_text = body.get("resume_text", "")
+    job_description = body.get("job_description", "")
+    company_name = body.get("company_name", "")
+    tone = body.get("tone", "professional")
+
+    if not resume_text or not job_description:
+        raise HTTPException(status_code=400, detail="Resume text and job description are required.")
+
+    try:
+        result = generate_cover_letter(resume_text, job_description, company_name, tone)
+        return result
+    except Exception as e:
+        print("COVER LETTER ERROR:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── Interview Prep ────────────────────────────────────────
+
+from app.services.interview_service import generate_interview_questions, score_interview_answer
+
+@app.post("/interview-prep")
+@limiter.limit("10/hour")
+async def interview_prep(request: Request, data: ResumeRequest):
+    """Generate personalized interview questions. Pro/admin only."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+
+    role = user_record.get("role", "free")
+    if role not in ("paid", "admin"):
+        raise HTTPException(status_code=402, detail="Interview prep is a Pro feature.")
+
+    if not data.job_description:
+        raise HTTPException(status_code=400, detail="Job description is required for interview prep.")
+
+    try:
+        result = generate_interview_questions(data.resume_text, data.job_description)
+        return result
+    except Exception as e:
+        print("INTERVIEW PREP ERROR:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/score-answer")
+@limiter.limit("20/hour")
+async def score_answer_endpoint(request: Request):
+    """Score a practice interview answer. Pro/admin only."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+
+    role = user_record.get("role", "free")
+    if role not in ("paid", "admin"):
+        raise HTTPException(status_code=402, detail="Answer scoring is a Pro feature.")
+
+    body = await request.json()
+    question = body.get("question", "")
+    answer = body.get("answer", "")
+    job_description = body.get("job_description", "")
+
+    if not question or not answer:
+        raise HTTPException(status_code=400, detail="Question and answer are required.")
+
+    try:
+        result = score_interview_answer(question, answer, job_description)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ── Resume Builder (Profile) ──────────────────────────────
 
 from app.services.resume_builder_service import generate_resume_from_profile
