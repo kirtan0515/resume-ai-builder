@@ -1029,3 +1029,57 @@ textarea::placeholder, input::placeholder { color: var(--dk-text-muted); }
 @media (max-width: 768px) {
   .admin-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ── Tools Grid ───────────────────────────────────────── */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 8px;
+  background: var(--dk-surface);
+  border: 1px solid var(--dk-border);
+  border-radius: var(--radius);
+  text-align: center;
+  transition: all var(--transition);
+  text-decoration: none;
+}
+
+.tool-card:hover {
+  border-color: var(--brand);
+  background: rgba(0,180,216,0.04);
+  transform: translateY(-1px);
+}
+
+.tool-card-active {
+  border-color: var(--brand);
+  background: rgba(0,180,216,0.06);
+}
+
+.tool-icon {
+  font-size: 20px;
+  color: var(--brand);
+  margin-bottom: 2px;
+}
+
+.tool-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dk-text);
+}
+
+.tool-desc {
+  font-size: 11px;
+  color: var(--dk-text-muted);
+}
+
+@media (max-width: 640px) {
+  .tools-grid { grid-template-columns: repeat(2, 1fr); }
+}

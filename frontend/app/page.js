@@ -75,9 +75,9 @@ export default function LandingPage() {
               { n: "01", t: "Resume Quality Score", d: "Get an instant quality score without a job description. See your clarity, impact, technical depth, and ATS readiness." },
               { n: "02", t: "Targeted Job Analysis", d: "Paste a job description for detailed match scoring with qualification tiering — required vs preferred vs bonus." },
               { n: "03", t: "Smart Job Matching", d: "AI auto-detects your best job titles and finds real openings scored against your resume. Know your chances before applying." },
-              { n: "04", t: "Evidence-Based Feedback", d: "Every weakness cites what we found or didn't find. No vague advice. No invented claims. Just honest coaching." },
-              { n: "05", t: "Internship-Aware Scoring", d: "Student resumes evaluated against junior expectations. Projects and coursework count as valid experience." },
-              { n: "06", t: "Prioritized Fix List", d: "Know exactly what to change first, why it matters for this role, and how to implement it truthfully." },
+              { n: "04", t: "Interview Prep", d: "Get personalized interview questions based on your resume and target role. Practice mode scores your answers in real time." },
+              { n: "05", t: "Ghost Job Detector", d: "Check if a job posting is real or just collecting resumes. Stop wasting time on fake listings." },
+              { n: "06", t: "Salary Negotiation AI", d: "Get salary estimates, negotiation scripts, and counter-offer strategies based on your experience and target role." },
             ].map((f, i) => (
               <div key={i} className="feature-card">
                 <div className="feature-num">{f.n}</div>
@@ -158,10 +158,12 @@ export default function LandingPage() {
                 <li>Unlimited resume analyses</li>
                 <li>Targeted job description matching</li>
                 <li>Smart job search + fit scoring</li>
-                <li>Qualification coverage breakdown</li>
-                <li>Tailored summary + improved bullets</li>
-                <li>Download improvement report</li>
-                <li>Version comparison</li>
+                <li>AI Interview Prep + practice mode</li>
+                <li>Cover Letter Generator</li>
+                <li>Salary Negotiation AI</li>
+                <li>Resume Builder + LaTeX export</li>
+                <li>Application Tracker with AI scoring</li>
+                <li>Download improvement reports</li>
               </ul>
               <a href="/pricing" className="btn btn-md btn-brand plan-btn">Upgrade to Pro</a>
             </div>

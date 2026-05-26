@@ -61,6 +61,51 @@ export default function Dashboard() {
         ) : session ? (
           <>
             <BillingPanel session={session} userMeta={userMeta} />
+
+            {/* Tools Grid */}
+            <div className="tools-grid">
+              <a href="/dashboard" className="tool-card tool-card-active">
+                <div className="tool-icon">◎</div>
+                <div className="tool-name">Resume Analysis</div>
+                <div className="tool-desc">Score & feedback</div>
+              </a>
+              <a href="/tracker" className="tool-card">
+                <div className="tool-icon">▤</div>
+                <div className="tool-name">Tracker</div>
+                <div className="tool-desc">Track applications</div>
+              </a>
+              <a href="/interview" className="tool-card">
+                <div className="tool-icon">◇</div>
+                <div className="tool-name">Interview Prep</div>
+                <div className="tool-desc">Practice questions</div>
+              </a>
+              <a href="/cover-letter" className="tool-card">
+                <div className="tool-icon">▧</div>
+                <div className="tool-name">Cover Letter</div>
+                <div className="tool-desc">AI-generated</div>
+              </a>
+              <a href="/salary" className="tool-card">
+                <div className="tool-icon">△</div>
+                <div className="tool-name">Salary Intel</div>
+                <div className="tool-desc">Negotiate better</div>
+              </a>
+              <a href="/ghost-check" className="tool-card">
+                <div className="tool-icon">◌</div>
+                <div className="tool-name">Ghost Check</div>
+                <div className="tool-desc">Detect fake jobs</div>
+              </a>
+              <a href="/builder" className="tool-card">
+                <div className="tool-icon">▦</div>
+                <div className="tool-name">Resume Builder</div>
+                <div className="tool-desc">PDF & LaTeX</div>
+              </a>
+              <a href="/profile" className="tool-card">
+                <div className="tool-icon">○</div>
+                <div className="tool-name">Profile</div>
+                <div className="tool-desc">Your saved data</div>
+              </a>
+            </div>
+
             <ResumeForm session={session} userMeta={userMeta} />
           </>
         ) : (
