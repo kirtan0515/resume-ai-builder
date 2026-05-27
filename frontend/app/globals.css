@@ -73,7 +73,7 @@ img { max-width: 100%; }
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
-.nav-logo { height: 38px; width: auto; }
+.nav-logo { height: 44px; width: auto; }
 
 .nav-center {
   display: flex;
