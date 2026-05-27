@@ -52,6 +52,7 @@ export default function AdminDashboard() {
 
   const s = data.summary;
   const c = data.costs;
+  const p = data.projections;
 
   return (
     <div className="dashboard-page" style={{ paddingTop: "24px" }}>
@@ -89,13 +90,34 @@ export default function AdminDashboard() {
         <div className="card" style={{ marginBottom: "20px" }}>
           <div className="card-title">Cost Breakdown</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", fontSize: "14px", color: "var(--dk-text-label)" }}>
-            <div>Cost per analysis (GPT-4o + embeddings):</div><div style={{ fontWeight: "700" }}>${c.cost_per_analysis_usd}</div>
+            <div>Cost per analysis (GPT-4o + RAG):</div><div style={{ fontWeight: "700" }}>${c.cost_per_analysis_usd}</div>
             <div>Cost per job search (Apify + GPT-4o):</div><div style={{ fontWeight: "700" }}>${c.cost_per_job_search_usd}</div>
-            <div>Total API cost (all time):</div><div style={{ fontWeight: "700" }}>${c.estimated_total_cost_usd}</div>
+            <div>Cost per tool use (interview/cover/salary):</div><div style={{ fontWeight: "700" }}>${c.cost_per_tool_use_usd}</div>
+            <div>Total API cost (all time):</div><div style={{ fontWeight: "700" }}>${c.estimated_total_api_cost_usd}</div>
+            <div>Infrastructure (monthly):</div><div style={{ fontWeight: "700" }}>${c.infra_monthly_usd}</div>
             <div>Revenue (active subs × $9):</div><div style={{ fontWeight: "700", color: "var(--green)" }}>${c.monthly_revenue_usd}/mo</div>
             <div>Estimated monthly profit:</div><div style={{ fontWeight: "700", color: c.estimated_monthly_profit_usd >= 0 ? "var(--green)" : "var(--red)" }}>${c.estimated_monthly_profit_usd}/mo</div>
           </div>
         </div>
+
+        {/* Projections */}
+        {p && (
+          <div className="card" style={{ marginBottom: "20px" }}>
+            <div className="card-title accent-accent">Profit Projections</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", fontSize: "14px", color: "var(--dk-text-label)" }}>
+              <div>Users needed to break even:</div><div style={{ fontWeight: "700" }}>{p.users_needed_breakeven} paid users</div>
+              <div>Profit at 100 total users (5% convert):</div><div style={{ fontWeight: "700", color: p.profit_at_100_users >= 0 ? "var(--green)" : "var(--red)" }}>${p.profit_at_100_users}/mo</div>
+              <div>Profit at 500 total users (5% convert):</div><div style={{ fontWeight: "700", color: "var(--green)" }}>${p.profit_at_500_users}/mo</div>
+              <div>Profit at 1000 total users (5% convert):</div><div style={{ fontWeight: "700", color: "var(--green)" }}>${p.profit_at_1000_users}/mo</div>
+              <div>Assumed conversion rate:</div><div style={{ fontWeight: "700" }}>{p.conversion_rate_assumed}</div>
+              <div>Assumed analyses per user:</div><div style={{ fontWeight: "700" }}>{p.avg_analyses_per_user_assumed}</div>
+            </div>
+            <div style={{ marginTop: "16px", padding: "12px", background: "var(--dk-surface-2)", borderRadius: "8px", fontSize: "13px", color: "var(--dk-text-muted)" }}>
+              At 5% conversion: 100 users = 5 paid = ${5*9}/mo revenue. 1000 users = 50 paid = ${50*9}/mo revenue.
+              With 11 tools, higher engagement means higher conversion potential (target 8-12%).
+            </div>
+          </div>
+        )}
 
         {/* Recent users */}
         <div className="card" style={{ marginBottom: "20px" }}>

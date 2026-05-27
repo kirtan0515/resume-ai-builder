@@ -69,6 +69,11 @@ export default function Dashboard() {
                 <div className="tool-name">Resume Analysis</div>
                 <div className="tool-desc">Score & feedback</div>
               </a>
+              <a href="/ats-check" className="tool-card">
+                <div className="tool-icon">▣</div>
+                <div className="tool-name">ATS Simulator</div>
+                <div className="tool-desc">Test parsing</div>
+              </a>
               <a href="/tracker" className="tool-card">
                 <div className="tool-icon">▤</div>
                 <div className="tool-name">Tracker</div>
@@ -93,6 +98,11 @@ export default function Dashboard() {
                 <div className="tool-icon">◌</div>
                 <div className="tool-name">Ghost Check</div>
                 <div className="tool-desc">Detect fake jobs</div>
+              </a>
+              <a href="/linkedin" className="tool-card">
+                <div className="tool-icon">◈</div>
+                <div className="tool-name">LinkedIn Check</div>
+                <div className="tool-desc">vs Resume</div>
               </a>
               <a href="/builder" className="tool-card">
                 <div className="tool-icon">▦</div>

@@ -3,6 +3,7 @@ import json
 from dotenv import load_dotenv
 from openai import OpenAI
 from app.services.rag_service import RAGService
+from app.services.learning_service import get_learning_context, get_user_learning_context
 
 load_dotenv()
 
@@ -48,7 +49,7 @@ WHAT YOU MUST NEVER DO:
 - Give generic advice like "add more metrics" without citing what's already there"""
 
 
-def generate_resume_feedback(resume_text: str, job_description: str) -> dict:
+def generate_resume_feedback(resume_text: str, job_description: str, user_id: str = "") -> dict:
     relevant_chunks = rag_service.retrieve_relevant_chunks(
         resume_text=resume_text,
         job_description=job_description,
@@ -56,7 +57,15 @@ def generate_resume_feedback(resume_text: str, job_description: str) -> dict:
     )
     retrieved_context = "\n\n".join(relevant_chunks) if relevant_chunks else ""
 
+    # Get learning context from real outcome data
+    learning_context = get_learning_context()
+    user_context = get_user_learning_context(user_id) if user_id else ""
+
     prompt = f"""Analyze this resume against the job description as a fair, evidence-based resume coach.
+
+{learning_context}
+
+{user_context}
 
 Retrieved Resume Context (most relevant sections via semantic search):
 {retrieved_context}

@@ -72,7 +72,7 @@ async def analyze_resume(request: Request, data: ResumeRequest):
     check_access(user_record, ip)
 
     try:
-        result = generate_resume_feedback(data.resume_text, data.job_description)
+        result = generate_resume_feedback(data.resume_text, data.job_description, user_id=user.id)
         if "analysis" in result and "detected_domain" not in result:
             result = result["analysis"]
 
@@ -259,6 +259,66 @@ async def find_jobs(request: Request, data: JobSearchRequest):
         return results
     except Exception as e:
         print("JOB SEARCH ERROR:", str(e))
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── Outcome Insights ───────────────────────────────────────
+
+from app.services.insights_service import generate_outcome_insights
+
+@app.get("/applications/insights")
+async def application_insights(request: Request):
+    """Get AI-powered insights from application outcomes."""
+    user = verify_token(request)
+    sb = get_supabase()
+    result = sb.table("applications").select("*").eq("user_id", user.id).execute()
+    apps = result.data or []
+    insights = generate_outcome_insights(apps)
+    return insights
+
+
+# ── ATS Simulator ──────────────────────────────────────────
+
+from app.services.ats_simulator import simulate_ats_parsing
+
+@app.post("/ats-simulate")
+@limiter.limit("10/hour")
+async def ats_simulate(request: Request, data: ResumeRequest):
+    """Simulate ATS parsing of a resume."""
+    user = verify_token(request)
+    if not data.resume_text or len(data.resume_text.strip()) < 50:
+        raise HTTPException(status_code=400, detail="Resume text required.")
+    try:
+        result = simulate_ats_parsing(data.resume_text)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── LinkedIn Analyzer ──────────────────────────────────────
+
+from app.services.linkedin_service import analyze_linkedin_vs_resume
+
+@app.post("/linkedin-analyze")
+@limiter.limit("10/hour")
+async def linkedin_analyze(request: Request):
+    """Compare LinkedIn profile against resume. Pro/admin only."""
+    user = verify_token(request)
+    user_record = get_or_create_user_record(user)
+    if user_record.get("role") not in ("paid", "admin"):
+        raise HTTPException(status_code=402, detail="LinkedIn analysis is a Pro feature.")
+
+    body = await request.json()
+    linkedin_text = body.get("linkedin_text", "")
+    resume_text = body.get("resume_text", "")
+
+    if not linkedin_text or not resume_text:
+        raise HTTPException(status_code=400, detail="Both LinkedIn text and resume text required.")
+
+    try:
+        result = analyze_linkedin_vs_resume(linkedin_text, resume_text)
+        return result
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -743,15 +803,29 @@ async def admin_analytics(request: Request):
     active_subs = len([u for u in users if u.get("subscription_status") == "active"])
     monthly_revenue = active_subs * 9
 
-    # Cost estimation (per analysis)
-    # GPT-4o: ~$0.03 per analysis, ~$0.05 per job search, embeddings: ~$0.001
+    # Cost estimation — updated for all tools
+    # GPT-4o: ~$0.03 per analysis, ~$0.05 per job search, ~$0.03 per interview/cover letter/salary
+    # Apify: ~$0.02 per job search
     cost_per_analysis = 0.035
-    cost_per_job_search = 0.06
+    cost_per_job_search = 0.07
+    cost_per_tool_use = 0.03  # interview, cover letter, salary, linkedin, ats
     estimated_total_cost = total_analyses * cost_per_analysis
     estimated_daily_cost = total_daily * cost_per_analysis
 
+    # Infrastructure costs (monthly)
+    ec2_cost = 8.50  # t2.micro
+    domain_cost = 1.00  # ~$12/year
+    apify_cost = 5.00  # free tier
+    infra_monthly = ec2_cost + domain_cost + apify_cost
+
     # Profit/loss
-    monthly_profit = monthly_revenue - (estimated_total_cost * 2)  # rough monthly estimate
+    monthly_profit = monthly_revenue - infra_monthly - (estimated_daily_cost * 30)
+
+    # Projections
+    users_needed_breakeven = max(1, round((infra_monthly + 10) / 9))  # $9/user
+    projected_100_users = (100 * 0.05 * 9) - infra_monthly - (100 * 5 * cost_per_analysis)  # 5% conversion
+    projected_500_users = (500 * 0.05 * 9) - infra_monthly - (500 * 5 * cost_per_analysis)
+    projected_1000_users = (1000 * 0.05 * 9) - infra_monthly - (1000 * 5 * cost_per_analysis)
 
     # Recent usage logs
     logs_res = sb.table("usage_logs").select("*").order("created_at", desc=True).limit(30).execute()
@@ -781,10 +855,20 @@ async def admin_analytics(request: Request):
         "costs": {
             "cost_per_analysis_usd": cost_per_analysis,
             "cost_per_job_search_usd": cost_per_job_search,
-            "estimated_total_cost_usd": round(estimated_total_cost, 2),
-            "estimated_daily_cost_usd": round(estimated_daily_cost, 2),
+            "cost_per_tool_use_usd": cost_per_tool_use,
+            "estimated_total_api_cost_usd": round(estimated_total_cost, 2),
+            "estimated_daily_api_cost_usd": round(estimated_daily_cost, 2),
+            "infra_monthly_usd": round(infra_monthly, 2),
             "monthly_revenue_usd": monthly_revenue,
             "estimated_monthly_profit_usd": round(monthly_profit, 2),
+        },
+        "projections": {
+            "users_needed_breakeven": users_needed_breakeven,
+            "profit_at_100_users": round(projected_100_users, 2),
+            "profit_at_500_users": round(projected_500_users, 2),
+            "profit_at_1000_users": round(projected_1000_users, 2),
+            "conversion_rate_assumed": "5%",
+            "avg_analyses_per_user_assumed": 5,
         },
         "recent_users": [
             {
