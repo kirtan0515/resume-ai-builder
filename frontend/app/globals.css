@@ -1121,3 +1121,39 @@ textarea::placeholder, input::placeholder { color: var(--dk-text-muted); }
 @media (max-width: 768px) {
   .demo-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Navbar mobile menu ───────────────────────────────── */
+.nav-mobile-menu {
+  position: fixed;
+  top: 72px;
+  left: 0;
+  right: 0;
+  background: rgba(10,22,40,0.98);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 199;
+  backdrop-filter: blur(12px);
+}
+
+.nav-mobile-menu a,
+.nav-mobile-menu button {
+  font-size: 15px;
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 12px 8px;
+  cursor: pointer;
+  width: 100%;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: color var(--transition);
+}
+
+.nav-mobile-menu a:hover,
+.nav-mobile-menu button:hover {
+  color: var(--brand);
+}

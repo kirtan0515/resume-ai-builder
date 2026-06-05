@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 export default function Navbar() {
   const [session, setSession] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -38,28 +39,62 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="nav">
-      <a href="/">
-        <img src="/ResumeAIHublogo.png" alt="ResumeAI Hub" className="nav-logo" />
-      </a>
+    <>
+      <nav className="nav">
+        {/* Logo - left */}
+        <a href="/">
+          <img
+            src="/ResumeAIHublogo.svg"
+            alt="ResumeAI Hub"
+            className="nav-logo"
+            onError={(e) => { e.target.src = '/ResumeAIHublogo.png'; }}
+          />
+        </a>
 
-      <div className="nav-center">
-        <a className="nav-link" href="/pricing">Pricing</a>
-        {session && <a className="nav-link" href="/dashboard">Dashboard</a>}
-        {session && <a className="nav-link" href="/tracker">Tracker</a>}
-        {session && <a className="nav-link" href="/profile">Profile</a>}
-      </div>
+        {/* Center links */}
+        <div className="nav-center">
+          <a className="nav-link" href="/#tools">Features</a>
+          <a className="nav-link" href="/#how">How It Works</a>
+          <a className="nav-link" href="/pricing">Pricing</a>
+          {session && <a className="nav-link" href="/dashboard">Dashboard</a>}
+          {session && <a className="nav-link" href="/tracker">Tracker</a>}
+          {session && <a className="nav-link" href="/profile">Profile</a>}
+        </div>
 
-      <div className="nav-right">
-        {isAdmin && <span className="nav-admin">Admin</span>}
-        {session ? (
-          <button className="nav-btn nav-btn-ghost" onClick={handleSignOut}>Sign Out</button>
-        ) : (
-          <a className="nav-btn nav-btn-primary" href="/dashboard">Get Started</a>
-        )}
-      </div>
+        {/* Right — CTA buttons */}
+        <div className="nav-right">
+          {isAdmin && <span className="nav-admin">Admin</span>}
+          {session ? (
+            <button className="nav-btn nav-btn-ghost" onClick={handleSignOut}>Sign Out</button>
+          ) : (
+            <>
+              <a className="nav-btn nav-btn-ghost" href="/dashboard">Sign In</a>
+              <a className="nav-btn nav-btn-primary" href="/dashboard">Get Started Free</a>
+            </>
+          )}
+        </div>
 
-      <button className="nav-hamburger" aria-label="Menu">☰</button>
-    </nav>
+        <button className="nav-hamburger" aria-label="Menu" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? "✕" : "☰"}
+        </button>
+      </nav>
+
+      {/* Mobile dropdown */}
+      {menuOpen && (
+        <div className="nav-mobile-menu">
+          <a href="/#tools" onClick={() => setMenuOpen(false)}>Features</a>
+          <a href="/#how" onClick={() => setMenuOpen(false)}>How It Works</a>
+          <a href="/pricing" onClick={() => setMenuOpen(false)}>Pricing</a>
+          {session && <a href="/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</a>}
+          {session && <a href="/tracker" onClick={() => setMenuOpen(false)}>Tracker</a>}
+          {session && <a href="/profile" onClick={() => setMenuOpen(false)}>Profile</a>}
+          {session ? (
+            <button onClick={handleSignOut}>Sign Out</button>
+          ) : (
+            <a href="/dashboard" onClick={() => setMenuOpen(false)}>Get Started Free</a>
+          )}
+        </div>
+      )}
+    </>
   );
 }

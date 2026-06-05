@@ -3,7 +3,9 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="footer-inner">
         <div>
-          <img src="/ResumeAIHublogo.png" alt="ResumeAI Hub" style={{ height: "32px", width: "auto", marginBottom: "8px" }} />
+          <img src="/ResumeAIHublogo.svg" alt="ResumeAI Hub"
+            style={{ height: "44px", width: "auto", marginBottom: "10px" }}
+            onError={(e) => { e.target.src = '/ResumeAIHublogo.png'; }} />
           <p className="footer-brand-desc">
             AI-powered resume analysis that helps you understand why your resume works — or doesn't — for any role.
           </p>
