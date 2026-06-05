@@ -44,10 +44,9 @@ export default function Navbar() {
         {/* Logo - left */}
         <a href="/">
           <img
-            src="/ResumeAIHublogo.svg"
+            src="/ResumeAIHublogo.png"
             alt="ResumeAI Hub"
             className="nav-logo"
-            onError={(e) => { e.target.src = '/ResumeAIHublogo.png'; }}
           />
         </a>
 
