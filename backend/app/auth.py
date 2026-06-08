@@ -9,7 +9,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
 ADMIN_EMAIL = "kirtan.patel0515@gmail.com"
 
-FREE_LIFETIME_LIMIT = int(os.getenv("FREE_LIFETIME_LIMIT", "2"))
+FREE_LIFETIME_LIMIT = int(os.getenv("FREE_LIFETIME_LIMIT", "3"))
 ANALYZE_ENABLED = os.getenv("ANALYZE_ENABLED", "true").lower() == "true"
 MAX_GLOBAL_ANALYSES_PER_DAY = int(os.getenv("MAX_GLOBAL_ANALYSES_PER_DAY", "500"))
 
