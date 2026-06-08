@@ -46,7 +46,7 @@ export default function PricingPage() {
             <div className="plan-card">
               <div className="plan-name">Free</div>
               <div className="plan-price">$0</div>
-              <div className="plan-period">2 lifetime analyses · forever free</div>
+              <div className="plan-period">3 lifetime analyses · forever free</div>
               <ul className="plan-features">
                 <li>Resume quality score (no JD needed)</li>
                 <li>Suggested job titles based on experience</li>
@@ -104,7 +104,7 @@ export default function PricingPage() {
               {[
                 { q: "What's the difference between Quick Score and Targeted Analysis?", a: "Quick Score evaluates your resume's general quality without a job description — it gives you a quality score and suggests job titles. Targeted Analysis compares your resume against a specific job description for detailed match scoring." },
                 { q: "How does Smart Job Matching work?", a: "Our AI extracts your skills and experience, searches real job boards, then scores each job against your resume. You see which jobs you're most likely to land." },
-                { q: "Do free analyses expire?", a: "No. Your 2 free analyses are lifetime — they never reset. Once used, you'll need Pro for more." },
+                { q: "Do free analyses expire?", a: "No. Your 3 free analyses are lifetime — they never reset. Once used, you'll need Pro for more." },
                 { q: "Can I cancel anytime?", a: "Yes. Cancel from your dashboard. You keep Pro access until your billing period ends. No questions asked." },
                 { q: "Is my resume data stored?", a: "No. Resume text is processed in real time via OpenAI's API and is not stored in our database. We only store your email and usage count." },
                 { q: "What AI model do you use?", a: "GPT-4o by OpenAI — the most capable model available for structured analysis, combined with RAG (semantic search) for better context extraction." },
