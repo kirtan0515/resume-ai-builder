@@ -20,7 +20,7 @@ export default function LandingPage() {
             <a href="/dashboard" className="btn btn-lg btn-brand">Start Free Analysis</a>
             <a href="#tools" className="btn btn-lg btn-outline-light">See All Tools</a>
           </div>
-          <p className="hero-note">Free to try · No credit card · 2 free analyses</p>
+          <p className="hero-note">Free to try · No credit card · 3 free analyses</p>
         </div>
 
         <div className="hero-preview">
