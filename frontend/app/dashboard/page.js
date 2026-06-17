@@ -120,14 +120,28 @@ export default function Dashboard() {
           </>
         ) : (
           <div className="card signin-prompt">
-            <div className="signin-prompt-icon">🔐</div>
-            <h3 className="signin-prompt-title">Sign in to Analyze Your Resume</h3>
+            <div className="signin-prompt-icon" style={{ fontSize: "52px", marginBottom: "20px" }}>◎</div>
+            <h3 className="signin-prompt-title">Welcome to ResumeAI Hub</h3>
             <p className="signin-prompt-body">
-              Create a free account to get started. Your first 2 analyses are free.
+              Sign in to access 11 AI career tools — resume scoring, job matching, interview prep, and more.
+              Your first 3 analyses are free.
             </p>
-            <button className="btn-primary" style={{ margin: "0 auto" }} onClick={() => setShowAuth(true)}>
-              Get Started — It's Free
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center", marginTop: "8px" }}>
+              <button className="btn btn-lg btn-brand" style={{ width: "100%", maxWidth: "300px" }} onClick={() => setShowAuth(true)}>
+                Get Started Free
+              </button>
+              <p style={{ fontSize: "13px", color: "var(--dk-text-muted)" }}>No credit card required · 3 free analyses</p>
+            </div>
+            <div style={{ marginTop: "24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", maxWidth: "400px", margin: "24px auto 0" }}>
+              <div style={{ background: "var(--dk-surface-2)", border: "1px solid var(--dk-border)", borderRadius: "8px", padding: "12px", textAlign: "center" }}>
+                <div style={{ fontSize: "16px", fontWeight: "700", color: "var(--brand)" }}>Free</div>
+                <div style={{ fontSize: "11px", color: "var(--dk-text-muted)" }}>ATS Check, Ghost Detector, Tracker</div>
+              </div>
+              <div style={{ background: "var(--dk-surface-2)", border: "1px solid var(--dk-border)", borderRadius: "8px", padding: "12px", textAlign: "center" }}>
+                <div style={{ fontSize: "16px", fontWeight: "700", color: "var(--green)" }}>Pro $9/mo</div>
+                <div style={{ fontSize: "11px", color: "var(--dk-text-muted)" }}>All 11 tools unlimited</div>
+              </div>
+            </div>
           </div>
         )}
       </main>
