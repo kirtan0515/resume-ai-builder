@@ -119,9 +119,9 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Recent users */}
+        {/* All Users — with role management */}
         <div className="card" style={{ marginBottom: "20px" }}>
-          <div className="card-title">Recent Users</div>
+          <div className="card-title">All Users — Role Management</div>
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
@@ -129,22 +129,22 @@ export default function AdminDashboard() {
                   <th>Email</th>
                   <th>Role</th>
                   <th>Analyses</th>
-                  <th>Today</th>
                   <th>Sub Status</th>
-                  <th>Last IP</th>
                   <th>Joined</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {data.recent_users.map((u, i) => (
+                {data.all_users?.map((u, i) => (
                   <tr key={i}>
                     <td>{u.email}</td>
                     <td><span className={`role-badge role-${u.role}`}>{u.role}</span></td>
                     <td>{u.lifetime_analyses}</td>
-                    <td>{u.daily_analyses}</td>
                     <td>{u.subscription_status || "—"}</td>
-                    <td style={{ fontFamily: "monospace", fontSize: "11px" }}>{u.last_ip || "—"}</td>
                     <td>{u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}</td>
+                    <td>
+                      <RoleChanger userId={u.id} currentRole={u.role} session={session} onUpdate={() => fetchAnalytics(session.access_token)} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -193,5 +193,40 @@ function StatCard({ label, value, color }) {
       <div className="admin-stat-value" style={color ? { color } : {}}>{value}</div>
       <div className="admin-stat-label">{label}</div>
     </div>
+  );
+}
+
+function RoleChanger({ userId, currentRole, session, onUpdate }) {
+  const [changing, setChanging] = useState(false);
+
+  async function changeRole(newRole) {
+    if (newRole === currentRole) return;
+    if (!confirm(`Change this user's role to "${newRole}"?`)) return;
+    setChanging(true);
+    try {
+      const res = await fetch(`${API_URL}/admin/update-user-role`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ user_id: userId, role: newRole }),
+      });
+      if (res.ok) { onUpdate(); }
+      else { alert("Failed to update role."); }
+    } catch { alert("Error."); }
+    finally { setChanging(false); }
+  }
+
+  if (changing) return <span style={{ fontSize: "12px", color: "var(--dk-text-muted)" }}>Updating...</span>;
+
+  return (
+    <select
+      value={currentRole}
+      onChange={(e) => changeRole(e.target.value)}
+      style={{ background: "var(--dk-surface-2)", border: "1px solid var(--dk-border)", borderRadius: "4px", color: "var(--dk-text)", padding: "4px 8px", fontSize: "12px" }}
+    >
+      <option value="free">free</option>
+      <option value="paid">paid</option>
+      <option value="admin">admin</option>
+      <option value="blocked">blocked</option>
+    </select>
   );
 }

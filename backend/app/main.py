@@ -870,8 +870,9 @@ async def admin_analytics(request: Request):
             "conversion_rate_assumed": "5%",
             "avg_analyses_per_user_assumed": 5,
         },
-        "recent_users": [
+        "all_users": [
             {
+                "id": u.get("id"),
                 "email": u.get("email"),
                 "role": u.get("role"),
                 "lifetime_analyses": u.get("lifetime_analyses", 0),
@@ -880,7 +881,7 @@ async def admin_analytics(request: Request):
                 "subscription_status": u.get("subscription_status"),
                 "last_ip": u.get("last_ip"),
             }
-            for u in recent_users
+            for u in sorted(users, key=lambda u: u.get("created_at", ""), reverse=True)
         ],
         "recent_activity": [
             {
@@ -892,6 +893,25 @@ async def admin_analytics(request: Request):
             for log in recent_logs
         ],
     }
+
+
+@app.patch("/admin/update-user-role")
+async def admin_update_user_role(request: Request):
+    """Owner-only: manually change a user's role."""
+    user = verify_token(request)
+    if user.email != OWNER_EMAIL:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    body = await request.json()
+    target_user_id = body.get("user_id")
+    new_role = body.get("role")
+
+    if not target_user_id or new_role not in ("free", "paid", "admin", "blocked"):
+        raise HTTPException(status_code=400, detail="Valid user_id and role (free/paid/admin/blocked) required.")
+
+    sb = get_supabase()
+    sb.table("users").update({"role": new_role}).eq("id", target_user_id).execute()
+    return {"updated": True, "user_id": target_user_id, "new_role": new_role}
 
 
 # ── Stripe endpoints ──────────────────────────────────────
