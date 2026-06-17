@@ -212,12 +212,13 @@ export default function LandingPage() {
             <div className="plan-card">
               <div className="plan-name">Free</div>
               <div className="plan-price">$0</div>
-              <div className="plan-period">2 lifetime analyses</div>
+              <div className="plan-period">3 free analyses · forever</div>
               <ul className="plan-features">
+                <li>3 resume analyses</li>
+                <li>ATS Simulator (unlimited)</li>
+                <li>Ghost Job Detector (unlimited)</li>
+                <li>Application Tracker (unlimited)</li>
                 <li>Resume quality score</li>
-                <li>ATS compatibility check</li>
-                <li>Ghost job detector</li>
-                <li>Application tracker</li>
                 <li>Suggested job titles</li>
               </ul>
               <a href="/dashboard" className="btn btn-md btn-outline-light plan-btn">Get Started Free</a>

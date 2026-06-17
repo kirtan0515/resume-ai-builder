@@ -258,7 +258,7 @@ export default function ResumeForm({ session, userMeta }) {
             <div className="modal-icon">🔒</div>
             <h3 className="modal-title">Free Limit Reached</h3>
             <p className="modal-body">
-              You've used your <strong>2 free lifetime analyses</strong>.
+              You've used your <strong>3 free analyses</strong>.
             </p>
             <ul className="modal-features">
               <li>✓ Unlimited analyses with Pro</li>

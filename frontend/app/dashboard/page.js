@@ -67,52 +67,52 @@ export default function Dashboard() {
               <a href="/dashboard" className="tool-card tool-card-active">
                 <div className="tool-icon">◎</div>
                 <div className="tool-name">Resume Analysis</div>
-                <div className="tool-desc">Score & feedback</div>
+                <div className="tool-desc">3 free analyses</div>
               </a>
               <a href="/ats-check" className="tool-card">
                 <div className="tool-icon">▣</div>
                 <div className="tool-name">ATS Simulator</div>
-                <div className="tool-desc">Test parsing</div>
-              </a>
-              <a href="/tracker" className="tool-card">
-                <div className="tool-icon">▤</div>
-                <div className="tool-name">Tracker</div>
-                <div className="tool-desc">Track applications</div>
-              </a>
-              <a href="/interview" className="tool-card">
-                <div className="tool-icon">◇</div>
-                <div className="tool-name">Interview Prep</div>
-                <div className="tool-desc">Practice questions</div>
-              </a>
-              <a href="/cover-letter" className="tool-card">
-                <div className="tool-icon">▧</div>
-                <div className="tool-name">Cover Letter</div>
-                <div className="tool-desc">AI-generated</div>
-              </a>
-              <a href="/salary" className="tool-card">
-                <div className="tool-icon">△</div>
-                <div className="tool-name">Salary Intel</div>
-                <div className="tool-desc">Negotiate better</div>
+                <div className="tool-desc">Free</div>
               </a>
               <a href="/ghost-check" className="tool-card">
                 <div className="tool-icon">◌</div>
                 <div className="tool-name">Ghost Check</div>
-                <div className="tool-desc">Detect fake jobs</div>
+                <div className="tool-desc">Free</div>
+              </a>
+              <a href="/tracker" className="tool-card">
+                <div className="tool-icon">▤</div>
+                <div className="tool-name">Tracker</div>
+                <div className="tool-desc">Free</div>
+              </a>
+              <a href="/interview" className="tool-card">
+                <div className="tool-icon">◇</div>
+                <div className="tool-name">Interview Prep</div>
+                <div className="tool-desc">Pro</div>
+              </a>
+              <a href="/cover-letter" className="tool-card">
+                <div className="tool-icon">▧</div>
+                <div className="tool-name">Cover Letter</div>
+                <div className="tool-desc">Pro</div>
+              </a>
+              <a href="/salary" className="tool-card">
+                <div className="tool-icon">△</div>
+                <div className="tool-name">Salary Intel</div>
+                <div className="tool-desc">Pro</div>
               </a>
               <a href="/linkedin" className="tool-card">
                 <div className="tool-icon">◈</div>
                 <div className="tool-name">LinkedIn Check</div>
-                <div className="tool-desc">vs Resume</div>
+                <div className="tool-desc">Pro</div>
               </a>
               <a href="/builder" className="tool-card">
                 <div className="tool-icon">▦</div>
                 <div className="tool-name">Resume Builder</div>
-                <div className="tool-desc">PDF & LaTeX</div>
+                <div className="tool-desc">Pro export</div>
               </a>
               <a href="/profile" className="tool-card">
                 <div className="tool-icon">○</div>
                 <div className="tool-name">Profile</div>
-                <div className="tool-desc">Your saved data</div>
+                <div className="tool-desc">Free</div>
               </a>
             </div>
 
