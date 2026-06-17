@@ -795,9 +795,12 @@ textarea::placeholder, input::placeholder { color: var(--dk-text-muted); }
 .report-cta-terms { font-size: 12px; color: var(--dk-text-muted); margin-top: 6px; }
 .report-cta-upgrade { border-color: rgba(0,180,216,0.3); background: linear-gradient(135deg, var(--dk-surface) 0%, rgba(0,180,216,0.03) 100%); }
 
-.card-locked { position: relative; overflow: hidden; }
-.locked-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 16px; text-align: center; gap: 10px; }
-.locked-icon { font-size: 24px; }
+.card-locked { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--dk-surface) 0%, rgba(0,180,216,0.03) 100%); border-color: rgba(0,180,216,0.15); }
+.locked-overlay { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 16px; text-align: center; gap: 12px; }
+.locked-icon { font-size: 28px; opacity: 0.5; }
+.locked-text { font-size: 14px; color: var(--dk-text-muted); }
+.locked-btn { font-size: 14px; padding: 12px 24px; background: var(--brand); color: white; border: none; border-radius: var(--radius); font-weight: 600; cursor: pointer; transition: all var(--transition); }
+.locked-btn:hover { background: #0891b2; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,180,216,0.3); }
 .locked-text { font-size: 14px; color: var(--dk-text-muted); }
 .locked-btn { font-size: 13px; padding: 10px 20px; }
 .pro-badge { margin-left: auto; font-size: 10px; font-weight: 700; background: var(--brand); color: white; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.04em; text-transform: uppercase; }

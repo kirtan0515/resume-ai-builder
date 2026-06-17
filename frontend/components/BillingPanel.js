@@ -113,12 +113,14 @@ export default function BillingPanel({ session, userMeta }) {
 
   return (
     <div className="billing-panel billing-panel-upgrade">
-      <div>
+      <div style={{ flex: 1 }}>
         <div className="billing-panel-label">Plan</div>
         <div className="billing-panel-value">Free</div>
-        <div className="billing-panel-sub">Upgrade to Pro for unlimited analyses</div>
+        <div className="billing-panel-sub" style={{ marginTop: "6px" }}>
+          Unlock all 11 tools: Interview Prep, Cover Letter, Salary Intel, Job Matching, LinkedIn Check, Resume Builder + more
+        </div>
       </div>
-      <button className="btn-primary" onClick={handleUpgrade} disabled={loading}>
+      <button className="btn btn-lg btn-brand" onClick={handleUpgrade} disabled={loading} style={{ whiteSpace: "nowrap" }}>
         {loading ? <><span className="spinner" /> Loading...</> : "Upgrade to Pro — $9/mo"}
       </button>
     </div>
