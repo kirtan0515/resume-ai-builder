@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from app.services.rag_service import RAGService
 from app.services.learning_service import get_learning_context, get_user_learning_context
+from app.services.keyword_matcher import get_matching_context
 
 load_dotenv()
 
@@ -61,7 +62,12 @@ def generate_resume_feedback(resume_text: str, job_description: str, user_id: st
     learning_context = get_learning_context()
     user_context = get_user_learning_context(user_id) if user_id else ""
 
+    # Get deterministic keyword matching (ground truth for scoring)
+    keyword_context = get_matching_context(resume_text, job_description) if job_description else ""
+
     prompt = f"""Analyze this resume against the job description as a fair, evidence-based resume coach.
+
+{keyword_context}
 
 {learning_context}
 
@@ -90,10 +96,15 @@ STEP 3 — Match skills semantically:
 - If a skill is present under a different name or equivalent technology, count it as present
 - Only flag as missing if genuinely absent after semantic matching
 
-STEP 4 — Score calibration:
-- Score each dimension honestly based on evidence
-- overall_match_score must be consistent with the verdict band
-- Do NOT give a high score and a harsh verdict, or a low score and a positive verdict
+STEP 4 — Score calibration (CRITICAL — scores must reflect actual content):
+- ats_keyword_score: Count how many required/preferred keywords from the JD appear in the resume (semantically). Score = (matched / total) * 100
+- domain_relevance_score: How relevant is the candidate's domain experience to the job? Direct match = 80-100, adjacent = 50-79, unrelated = below 50
+- experience_alignment_score: Does the level/type of experience match? Same role type = 80-100, transferable = 50-79, mismatch = below 50
+- impact_score: Are achievements quantified with metrics, outcomes, or scale? 3+ metrics = 80-100, 1-2 = 50-79, none = below 50
+- qualification_coverage_score: (required_met / total_required) * 70 + (preferred_met / total_preferred) * 30
+- overall_match_score: weighted average = (ats_keyword * 0.25) + (domain_relevance * 0.20) + (experience_alignment * 0.25) + (impact * 0.15) + (qualification_coverage * 0.15)
+
+IMPORTANT: If the resume has added specific keywords, metrics, or improvements that address the job requirements, the score MUST increase compared to a version without those additions. A resume that covers 8/10 required keywords MUST score higher on ats_keyword_score than one covering 5/10. Be mathematically consistent.
 
 Return ONLY this exact JSON, no markdown:
 {{
@@ -154,8 +165,10 @@ Return ONLY this exact JSON, no markdown:
 
 Rules:
 - candidate_level: detect from resume signals
-- All scores: integers 0-100
+- All scores: integers 0-100, calculated using the scoring formulas in STEP 4
 - verdict must match the overall_match_score band exactly
+- SCORING ACCURACY: Count actual keyword matches. If resume has 8/10 required keywords = ats_keyword_score of 80. If it has 5/10 = 50. Be mathematical, not impressionistic.
+- IMPROVEMENT DETECTION: If a resume includes specific metrics, action verbs, relevant keywords, or quantified achievements, score it HIGHER than a generic resume. Every concrete improvement must move the score up.
 - strengths: 2-5 items with evidence
 - weaknesses: 2-5 items with evidence and suggestion
 - coach_feedback: 2-4 measured observations (no harsh language)
@@ -166,7 +179,7 @@ Rules:
 
     response = client.chat.completions.create(
         model="gpt-4o",
-        temperature=0.2,
+        temperature=0.1,
         response_format={"type": "json_object"},
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
