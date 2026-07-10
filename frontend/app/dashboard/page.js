@@ -4,30 +4,51 @@ import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import ResumeForm from "../../components/ResumeForm";
 import AuthModal from "../../components/AuthModal";
+import TwoFactorModal from "../../components/TwoFactorModal";
 import Navbar from "../../components/Navbar";
 import BillingPanel from "../../components/BillingPanel";
+
+const MFA_REQUIRED_EMAILS = ["kpatel@semsolutionsllc.com"];
 
 export default function Dashboard() {
   const [session, setSession] = useState(null);
   const [userMeta, setUserMeta] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [needs2FA, setNeeds2FA] = useState(false);
+  const [verified2FA, setVerified2FA] = useState(false);
+
+  function requiresMfa(email) {
+    return MFA_REQUIRED_EMAILS.some(
+      (e) => e.toLowerCase() === (email || "").toLowerCase()
+    );
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchUserMeta(session.access_token);
+      if (session) {
+        const mfaNeeded = requiresMfa(session.user?.email);
+        setNeeds2FA(mfaNeeded);
+        if (!mfaNeeded) setVerified2FA(true);
+        fetchUserMeta(session.access_token);
+      }
       setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
+        const mfaNeeded = requiresMfa(session.user?.email);
+        setNeeds2FA(mfaNeeded);
+        if (!mfaNeeded) setVerified2FA(true);
         fetchUserMeta(session.access_token);
         setShowAuth(false);
         setLoading(false);
       } else {
         setUserMeta(null);
+        setNeeds2FA(false);
+        setVerified2FA(false);
         setLoading(false);
       }
     });
@@ -44,6 +65,24 @@ export default function Dashboard() {
     } catch {}
   }
 
+  function handle2FAVerified() {
+    setVerified2FA(true);
+    setNeeds2FA(false);
+  }
+
+  function handle2FACancel() {
+    // Sign out if they cancel 2FA
+    supabase.auth.signOut();
+    setSession(null);
+    setNeeds2FA(false);
+    setVerified2FA(false);
+  }
+
+  // Show 2FA modal if user is logged in but hasn't verified yet
+  const show2FAModal = session && needs2FA && !verified2FA;
+  // User is fully authenticated only after 2FA (if required)
+  const isFullyAuthenticated = session && (!needs2FA || verified2FA);
+
   return (
     <div className="dashboard-page">
       <Navbar dark />
@@ -58,7 +97,7 @@ export default function Dashboard() {
           <div className="card" style={{ textAlign: "center", padding: "48px" }}>
             <span className="spinner" style={{ width: "24px", height: "24px", borderWidth: "3px" }} />
           </div>
-        ) : session ? (
+        ) : isFullyAuthenticated ? (
           <>
             <BillingPanel session={session} userMeta={userMeta} />
 
@@ -138,7 +177,7 @@ export default function Dashboard() {
                 <div style={{ fontSize: "11px", color: "var(--dk-text-muted)" }}>ATS Check, Ghost Detector, Tracker</div>
               </div>
               <div style={{ background: "var(--dk-surface-2)", border: "1px solid var(--dk-border)", borderRadius: "8px", padding: "12px", textAlign: "center" }}>
-                <div style={{ fontSize: "16px", fontWeight: "700", color: "var(--green)" }}>Pro $9/mo</div>
+                <div style={{ fontSize: "16px", fontWeight: "700", color: "var(--green)" }}>Pro $15/mo</div>
                 <div style={{ fontSize: "11px", color: "var(--dk-text-muted)" }}>All 11 tools unlimited</div>
               </div>
             </div>
@@ -147,6 +186,15 @@ export default function Dashboard() {
       </main>
 
       {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+
+      {show2FAModal && (
+        <TwoFactorModal
+          email={session.user.email}
+          token={session.access_token}
+          onVerified={handle2FAVerified}
+          onCancel={handle2FACancel}
+        />
+      )}
     </div>
   );
 }

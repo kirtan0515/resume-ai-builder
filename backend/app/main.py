@@ -20,6 +20,8 @@ from app.services.stripe_service import (
 )
 from app.auth import verify_token, get_or_create_user_record, check_access, record_usage, get_supabase
 
+import httpx
+
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="ResumeAI Hub API")
 app.state.limiter = limiter
@@ -208,6 +210,54 @@ async def get_me(request: Request):
         "current_period_end": user_record.get("current_period_end"),
         "stripe_customer_id": user_record.get("stripe_customer_id"),
     }
+
+
+# ── 2FA Verification (QuantumTrust MFA) ───────────────────
+
+MFA_REQUIRED_EMAILS = ["kpatel@semsolutionsllc.com"]
+
+@app.post("/auth/verify-2fa")
+async def verify_2fa(request: Request):
+    """Verify a TOTP code via QuantumTrust MFA API."""
+    user = verify_token(request)
+    body = await request.json()
+    email = body.get("email", "")
+    code = body.get("code", "")
+
+    if not email or not code:
+        raise HTTPException(status_code=400, detail="Email and code are required.")
+
+    # Only enforce for specific users
+    if email.lower() not in [e.lower() for e in MFA_REQUIRED_EMAILS]:
+        return {"valid": True, "message": "2FA not required for this user."}
+
+    qt_api_url = os.getenv("QUANTUMTRUST_API_URL", "")
+    qt_api_key = os.getenv("QUANTUMTRUST_API_KEY", "")
+
+    if not qt_api_url or not qt_api_key:
+        raise HTTPException(status_code=500, detail="MFA service not configured.")
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.post(
+                f"{qt_api_url}/mfa/verify",
+                json={"email": email, "code": code},
+                headers={"X-API-Key": qt_api_key},
+            )
+        if resp.status_code != 200:
+            raise HTTPException(status_code=502, detail="MFA service error.")
+        result = resp.json()
+        return {"valid": result.get("valid", False)}
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"Could not reach MFA service: {str(e)}")
+
+
+@app.get("/auth/requires-2fa")
+async def requires_2fa(request: Request):
+    """Check if the current user requires 2FA verification."""
+    user = verify_token(request)
+    requires = user.email.lower() in [e.lower() for e in MFA_REQUIRED_EMAILS]
+    return {"requires_2fa": requires}
 
 
 # ── Resume-Only Analysis ──────────────────────────────────
@@ -414,7 +464,7 @@ async def add_application(request: Request):
                 import json as j
                 c = OAI(api_key=os.environ.get("OPENAI_API_KEY"))
                 resp = c.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-mini",
                     temperature=0.1,
                     response_format={"type": "json_object"},
                     messages=[
@@ -753,7 +803,7 @@ Rules:
     import json as j
     c = OAI(api_key=os.environ.get("OPENAI_API_KEY"))
     resp = c.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4o-mini",
         temperature=0.1,
         response_format={"type": "json_object"},
         messages=[
