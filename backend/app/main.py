@@ -242,7 +242,11 @@ async def verify_2fa(request: Request):
             resp = await client.post(
                 f"{qt_api_url}/mfa/verify",
                 json={"email": email, "code": code},
-                headers={"X-API-Key": qt_api_key},
+                headers={
+                    "X-API-Key": qt_api_key,
+                    "Content-Type": "application/json",
+                    "ngrok-skip-browser-warning": "true",
+                },
             )
         if resp.status_code != 200:
             raise HTTPException(status_code=502, detail="MFA service error.")
